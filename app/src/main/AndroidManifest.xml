@@ -49,7 +49,6 @@
 
         <activity
             android:name=".DeskClock"
-            android:label="@string/app_label"
             android:launchMode="singleTask"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
