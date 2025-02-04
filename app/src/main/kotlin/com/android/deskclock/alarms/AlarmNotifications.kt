@@ -24,6 +24,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.content.res.Resources
 import android.os.Build
 import android.service.notification.StatusBarNotification
@@ -568,7 +569,11 @@ internal object AlarmNotifications {
         notification.setPriority(NotificationCompat.PRIORITY_MAX)
 
         clearNotification(service, instance)
-        service.startForeground(ALARM_FIRING_NOTIFICATION_ID, notification.build())
+        service.startForeground(
+            ALARM_FIRING_NOTIFICATION_ID,
+            notification.build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+        )
     }
 
     @JvmStatic
