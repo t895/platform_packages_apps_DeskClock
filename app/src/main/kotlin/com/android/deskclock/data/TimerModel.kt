@@ -633,16 +633,24 @@ internal class TimerModel(
         val intent: Intent = TimerService.createTimerExpiredIntent(mContext, nextExpiringTimer)
         if (nextExpiringTimer == null) {
             // Cancel the existing timer expiration callback.
-            val pi: PendingIntent? = PendingIntent.getService(mContext,
-                    0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_NO_CREATE)
+            val pi: PendingIntent? = PendingIntent.getService(
+                mContext,
+                0,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
             if (pi != null) {
                 mAlarmManager.cancel(pi)
                 pi.cancel()
             }
         } else {
             // Update the existing timer expiration callback.
-            val pi: PendingIntent = PendingIntent.getService(mContext,
-                    0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT)
+            val pi: PendingIntent = PendingIntent.getService(
+                mContext,
+                0,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
             schedulePendingIntent(mAlarmManager, nextExpiringTimer.expirationTime, pi)
         }
     }
