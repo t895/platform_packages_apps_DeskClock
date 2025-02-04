@@ -120,7 +120,7 @@ class AlarmStateManager : BroadcastReceiver() {
             stateChangeIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
             val pendingIntent: PendingIntent =
                     PendingIntent.getService(context, instance.hashCode(),
-                    stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
             val am: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
             if (Utils.isMOrLater) {
@@ -138,7 +138,7 @@ class AlarmStateManager : BroadcastReceiver() {
             val pendingIntent: PendingIntent? =
                     PendingIntent.getService(context, instance.hashCode(),
                     createStateChangeIntent(context, ALARM_MANAGER_TAG, instance, null),
-                    PendingIntent.FLAG_NO_CREATE)
+                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
 
             pendingIntent?.let {
                 val am: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
@@ -275,7 +275,7 @@ class AlarmStateManager : BroadcastReceiver() {
 
             val flags = if (nextAlarm == null) PendingIntent.FLAG_NO_CREATE else 0
             val operation: PendingIntent? = PendingIntent.getBroadcast(context, 0 /* requestCode */,
-                    createIndicatorIntent(context), flags)
+                    createIndicatorIntent(context), flags or PendingIntent.FLAG_IMMUTABLE)
 
             if (nextAlarm != null) {
                 LogUtils.i("Setting upcoming AlarmClockInfo for alarm: " + nextAlarm.mId)
@@ -285,7 +285,7 @@ class AlarmStateManager : BroadcastReceiver() {
                 val viewIntent: PendingIntent =
                         PendingIntent.getActivity(context, nextAlarm.hashCode(),
                         AlarmNotifications.createViewAlarmIntent(context, nextAlarm),
-                        PendingIntent.FLAG_UPDATE_CURRENT)
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
                 val info = AlarmClockInfo(alarmTime, viewIntent)
                 Utils.updateNextAlarm(alarmManager, info, operation!!)

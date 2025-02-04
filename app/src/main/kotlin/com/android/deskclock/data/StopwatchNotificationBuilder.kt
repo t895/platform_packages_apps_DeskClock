@@ -61,8 +61,10 @@ internal class StopwatchNotificationBuilder {
                 .setAction(StopwatchService.ACTION_SHOW_STOPWATCH)
                 .putExtra(Events.EXTRA_EVENT_LABEL, eventLabel)
 
-        val pendingShowApp: PendingIntent = PendingIntent.getService(context, 0, showApp,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingShowApp: PendingIntent = PendingIntent.getService(
+            context, 0, showApp,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         // Compute some values required below.
         val running = stopwatch!!.isRunning

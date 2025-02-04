@@ -268,7 +268,12 @@ object Utils {
      * @return a PendingIntent that will start a service
      */
     fun pendingServiceIntent(context: Context, intent: Intent): PendingIntent {
-        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getService(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     /**
@@ -279,7 +284,12 @@ object Utils {
      * @return a PendingIntent that will start an activity
      */
     fun pendingActivityIntent(context: Context, intent: Intent): PendingIntent {
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     /**
