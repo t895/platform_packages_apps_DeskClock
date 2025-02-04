@@ -78,8 +78,6 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
 
             if (!mAlarmHandled) {
                 when (action) {
-                    AlarmService.ALARM_SNOOZE_ACTION -> snooze()
-                    AlarmService.ALARM_DISMISS_ACTION -> dismiss()
                     AlarmService.ALARM_DONE_ACTION -> finish()
                     else -> LOGGER.i("Unknown broadcast: %s", action)
                 }
@@ -236,9 +234,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         if (!mReceiverRegistered) {
             // Register to get the alarm done/snooze/dismiss intent.
             val filter = IntentFilter(AlarmService.ALARM_DONE_ACTION)
-            filter.addAction(AlarmService.ALARM_SNOOZE_ACTION)
-            filter.addAction(AlarmService.ALARM_DISMISS_ACTION)
-            registerReceiver(mReceiver, filter, Context.RECEIVER_EXPORTED)
+            registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
             mReceiverRegistered = true
         }
         bindAlarmService()
