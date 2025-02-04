@@ -1,0 +1,34 @@
+[versions]
+agp = "8.8.0"
+kotlin = "2.1.10"
+java = "17"
+minSdk = "35"
+compileSdk = "35"
+targetSdk = "30"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+appcompat = "1.7.0"
+recyclerview = "1.4.0"
+runner = "1.6.2"
+rules = "1.6.1"
+preference = "1.2.1"
+material = "1.12.0"
+gridlayout = "1.0.0"
+percentLayout = "1.0.0"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
+androidx-percentlayout = { group = "androidx.percentlayout", name = "percentlayout", version.ref = "percentLayout" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
