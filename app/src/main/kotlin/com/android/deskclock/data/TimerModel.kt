@@ -28,6 +28,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import androidx.annotation.StringRes
@@ -779,7 +780,11 @@ internal class TimerModel(
         val notification: Notification = mNotificationBuilder.buildHeadsUp(mContext, expired)
         val notificationId = mNotificationModel.expiredTimerNotificationId
         mNotificationBuilder.buildChannel(mContext, mNotificationManager)
-        mService!!.startForeground(notificationId, notification)
+        mService!!.startForeground(
+            notificationId,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+        )
     }
 
     /**
