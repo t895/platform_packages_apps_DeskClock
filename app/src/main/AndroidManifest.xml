@@ -34,7 +34,7 @@
         android:name=".DeskClockApplication"
         android:allowBackup="false"
         android:backupAgent="DeskClockBackupAgent"
-        android:fullBackupContent="@xml/backup_scheme"
+        android:dataExtractionRules="@xml/backup_scheme"
         android:fullBackupOnly="true"
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher"
