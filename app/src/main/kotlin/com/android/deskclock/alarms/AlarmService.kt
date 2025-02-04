@@ -51,9 +51,6 @@ class AlarmService : Service() {
     /** Listener for changes in phone state.  */
     private val mPhoneStateListener = PhoneStateChangeListener()
 
-    /** Whether the receiver is currently registered  */
-    private var mIsRegistered = false
-
     override fun onBind(intent: Intent?): IBinder {
         mIsBound = true
         return mBinder
@@ -102,47 +99,9 @@ class AlarmService : Service() {
         AlarmAlertWakeLock.releaseCpuLock()
     }
 
-    private val mActionsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action: String? = intent.getAction()
-            LogUtils.i("AlarmService received intent %s", action)
-            if (mCurrentAlarm == null ||
-                    mCurrentAlarm!!.mAlarmState != InstancesColumns.FIRED_STATE) {
-                LogUtils.i("No valid firing alarm")
-                return
-            }
-
-            if (mIsBound) {
-                LogUtils.i("AlarmActivity bound; AlarmService no-op")
-                return
-            }
-
-            when (action) {
-                ALARM_SNOOZE_ACTION -> {
-                    // Set the alarm state to snoozed.
-                    // If this broadcast receiver is handling the snooze intent then AlarmActivity
-                    // must not be showing, so always show snooze toast.
-                    AlarmStateManager.setSnoozeState(context, mCurrentAlarm!!, true /* showToast */)
-                    Events.sendAlarmEvent(R.string.action_snooze, R.string.label_intent)
-                }
-                ALARM_DISMISS_ACTION -> {
-                    // Set the alarm state to dismissed.
-                    AlarmStateManager.deleteInstanceAndUpdateParent(context, mCurrentAlarm!!)
-                    Events.sendAlarmEvent(R.string.action_dismiss, R.string.label_intent)
-                }
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
         mTelephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
-        // Register the broadcast receiver
-        val filter = IntentFilter(ALARM_SNOOZE_ACTION)
-        filter.addAction(ALARM_DISMISS_ACTION)
-        registerReceiver(mActionsReceiver, filter, Context.RECEIVER_EXPORTED)
-        mIsRegistered = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -194,11 +153,6 @@ class AlarmService : Service() {
         if (mCurrentAlarm != null) {
             stopCurrentAlarm()
         }
-
-        if (mIsRegistered) {
-            unregisterReceiver(mActionsReceiver)
-            mIsRegistered = false
-        }
     }
 
     private inner class PhoneStateChangeListener : PhoneStateListener() {
@@ -222,19 +176,6 @@ class AlarmService : Service() {
     }
 
     companion object {
-        /**
-         * AlarmActivity and AlarmService (when unbound) listen for this broadcast intent
-         * so that other applications can snooze the alarm (after ALARM_ALERT_ACTION and before
-         * ALARM_DONE_ACTION).
-         */
-        const val ALARM_SNOOZE_ACTION = "com.android.deskclock.ALARM_SNOOZE"
-
-        /**
-         * AlarmActivity and AlarmService listen for this broadcast intent so that other
-         * applications can dismiss the alarm (after ALARM_ALERT_ACTION and before ALARM_DONE_ACTION).
-         */
-        const val ALARM_DISMISS_ACTION = "com.android.deskclock.ALARM_DISMISS"
-
         /** A public action sent by AlarmService when the alarm has started.  */
         const val ALARM_ALERT_ACTION = "com.android.deskclock.ALARM_ALERT"
 
