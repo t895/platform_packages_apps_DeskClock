@@ -20,6 +20,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Context.AUDIO_SERVICE
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.SharedPreferences
 import android.media.AudioManager
@@ -28,9 +29,8 @@ import android.media.AudioManager.STREAM_ALARM
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.provider.Settings
 import android.provider.Settings.ACTION_SOUND_SETTINGS
-import android.provider.Settings.EXTRA_APP_PACKAGE
 import android.view.View
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
@@ -126,24 +126,13 @@ class DataModel private constructor() {
         private class ChangeAppNotificationSettingsListener : View.OnClickListener {
             override fun onClick(v: View) {
                 val context: Context = v.context
-                if (Utils.isLOrLater) {
-                    try {
-                        // Attempt to open the notification settings for this app.
-                        context.startActivity(
-                                Intent("android.settings.APP_NOTIFICATION_SETTINGS")
-                                        .putExtra(EXTRA_APP_PACKAGE, context.packageName)
-                                        .putExtra("app_uid", context.applicationInfo.uid)
-                                        .addFlags(FLAG_ACTIVITY_NEW_TASK))
-                        return
-                    } catch (ignored: Exception) {
-                        // best attempt only; recovery code below
-                    }
-                }
 
-                // Fall back to opening the app settings page.
-                context.startActivity(Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                        .setData(Uri.fromParts("package", context.packageName, null))
-                        .addFlags(FLAG_ACTIVITY_NEW_TASK))
+                val i = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                i.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                // CLEAR_TASK to make sure the right screen is shown, an existing Settings activity
+                // may be shown in some cases otherwise
+                i.addFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK)
+                context.startActivity(i)
             }
         }
     }
