@@ -14,8 +14,10 @@
 
 package com.android.deskclock.timer
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.TextUtils
@@ -82,8 +84,11 @@ class ExpiredTimersActivity : BaseActivity() {
         setTurnScreenOn(true)
         setShowWhenLocked(true)
 
-        // Close dialogs and window shade, so this is fully visible
-        sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+        // Only broadcast this Intent when installed as a system app
+        if (checkSelfPermission("android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS") == PackageManager.PERMISSION_GRANTED) {
+            // Close dialogs and window shade, so this is fully visible
+            sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+        }
 
         // Honor rotation on tablets; fix the orientation on phones.
         if (!getResources().getBoolean(R.bool.rotateAlarmAlert)) {
