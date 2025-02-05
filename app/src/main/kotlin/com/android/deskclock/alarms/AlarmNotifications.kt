@@ -86,7 +86,7 @@ internal object AlarmNotifications {
 
     @JvmStatic
     @Synchronized
-    fun showLowPriorityUpcomingAlarmNotification(
+    fun showUpcomingAlarmNotification(
         context: Context,
         instance: AlarmInstance
     ) {
@@ -137,62 +137,8 @@ internal object AlarmNotifications {
         val notification: Notification = builder.build()
         NotificationUtils.createChannel(
             context,
-            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
-            NotificationManager.IMPORTANCE_LOW
+            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID
         )
-        nm.notify(id, notification)
-        updateUpcomingAlarmGroupNotification(context, -1, notification)
-    }
-
-    @JvmStatic
-    @Synchronized
-    fun showHighPriorityUpcomingAlarmNotification(
-        context: Context,
-        instance: AlarmInstance
-    ) {
-        LogUtils.v("Displaying high priority notification for alarm instance: " + instance.mId)
-
-        val builder: NotificationCompat.Builder = NotificationCompat.Builder(
-                context, NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID)
-                .setShowWhen(false)
-                .setContentTitle(context.getString(
-                        R.string.alarm_alert_predismiss_title))
-                .setContentText(AlarmUtils.getAlarmText(
-                        context, instance, true /* includeLabel */))
-                .setColor(ContextCompat.getColor(context, R.color.default_background))
-                .setSmallIcon(R.drawable.stat_notify_alarm)
-                .setAutoCancel(false)
-                .setSortKey(createSortKey(instance))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_EVENT)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setLocalOnly(true)
-
-        if (Utils.isNOrLater) {
-            builder.setGroup(UPCOMING_GROUP_KEY)
-        }
-
-        // Setup up dismiss action
-        val dismissIntent: Intent = AlarmStateManager.createStateChangeIntent(context,
-                AlarmStateManager.ALARM_DISMISS_TAG, instance, InstancesColumns.PREDISMISSED_STATE)
-        val id = instance.hashCode()
-        builder.addAction(R.drawable.ic_alarm_off_24dp,
-                context.getString(R.string.alarm_alert_dismiss_text),
-                PendingIntent.getService(context, id,
-                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-
-        // Setup content action if instance is owned by alarm
-        val viewAlarmIntent: Intent = createViewAlarmIntent(context, instance)
-        builder.setContentIntent(PendingIntent.getActivity(context, id,
-                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-
-        NotificationUtils.createChannel(
-            context,
-            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
-            NotificationManager.IMPORTANCE_LOW
-        )
-        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        val notification: Notification = builder.build()
         nm.notify(id, notification)
         updateUpcomingAlarmGroupNotification(context, -1, notification)
     }
@@ -264,8 +210,7 @@ internal object AlarmNotifications {
 
         NotificationUtils.createChannel(
             context,
-            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
-            NotificationManager.IMPORTANCE_LOW
+            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID
         )
 
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
@@ -556,11 +501,8 @@ internal object AlarmNotifications {
     @JvmStatic
     fun updateNotification(context: Context, instance: AlarmInstance) {
         when (instance.mAlarmState) {
-            InstancesColumns.LOW_NOTIFICATION_STATE -> {
-                showLowPriorityUpcomingAlarmNotification(context, instance)
-            }
-            InstancesColumns.HIGH_NOTIFICATION_STATE -> {
-                showHighPriorityUpcomingAlarmNotification(context, instance)
+            InstancesColumns.UPCOMING_NOTIFICATION_STATE -> {
+                showUpcomingAlarmNotification(context, instance)
             }
             InstancesColumns.SNOOZE_STATE -> showSnoozeNotification(context, instance)
             InstancesColumns.MISSED_STATE -> showMissedNotification(context, instance)

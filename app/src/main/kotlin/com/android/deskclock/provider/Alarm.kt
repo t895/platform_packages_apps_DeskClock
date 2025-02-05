@@ -135,12 +135,11 @@ class Alarm : Parcelable, AlarmsColumns {
 
     /**
      * Whether the alarm is in a state to show preemptive dismiss. Valid states are SNOOZE_STATE
-     * HIGH_NOTIFICATION, LOW_NOTIFICATION, and HIDE_NOTIFICATION.
+     * UPCOMING_NOTIFICATION_STATE, and HIDE_NOTIFICATION.
      */
     fun canPreemptivelyDismiss(): Boolean {
         return instanceState == InstancesColumns.SNOOZE_STATE ||
-                instanceState == InstancesColumns.HIGH_NOTIFICATION_STATE ||
-                instanceState == InstancesColumns.LOW_NOTIFICATION_STATE ||
+                instanceState == InstancesColumns.UPCOMING_NOTIFICATION_STATE ||
                 instanceState == InstancesColumns.HIDE_NOTIFICATION_STATE
     }
 
