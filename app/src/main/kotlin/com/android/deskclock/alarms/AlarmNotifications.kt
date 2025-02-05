@@ -471,12 +471,19 @@ internal object AlarmNotifications {
                 dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
 
         // Setup content intent
-        val showAndDismiss: Intent = AlarmInstance.createIntent(context,
-                AlarmStateManager::class.java, instance.mId)
-        showAndDismiss.putExtra(EXTRA_NOTIFICATION_ID, id)
-        showAndDismiss.setAction(AlarmStateManager.SHOW_AND_DISMISS_ALARM_ACTION)
-        builder.setContentIntent(PendingIntent.getBroadcast(context, id,
-                showAndDismiss, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+        val alarmId = instance.mAlarmId ?: Alarm.INVALID_ID
+        val showApp: Intent = Alarm.createIntent(context, DeskClock::class.java, alarmId)
+            .setAction(DeskClock.ACTION_SHOW_AND_DISMISS_ALARM)
+            .putExtra(EXTRA_NOTIFICATION_ID, id)
+            .putExtra(AlarmClockFragment.SCROLL_TO_ALARM_INTENT_EXTRA, alarmId)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val pendingShowApp: PendingIntent = PendingIntent.getActivity(
+            context, 0, showApp,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        builder.setContentIntent(pendingShowApp)
 
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

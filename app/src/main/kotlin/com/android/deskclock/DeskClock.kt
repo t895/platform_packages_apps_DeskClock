@@ -23,6 +23,7 @@ import android.animation.AnimatorSet
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.KeyEvent
@@ -36,6 +37,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -49,10 +51,13 @@ import com.android.deskclock.actionbarmenu.MenuItemControllerFactory
 import com.android.deskclock.actionbarmenu.NightModeMenuItemController
 import com.android.deskclock.actionbarmenu.OptionsMenuManager
 import com.android.deskclock.actionbarmenu.SettingsMenuItemController
+import com.android.deskclock.alarms.AlarmNotifications
+import com.android.deskclock.alarms.AlarmStateManager
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.data.OnSilentSettingsListener
 import com.android.deskclock.events.Events
 import com.android.deskclock.provider.Alarm
+import com.android.deskclock.provider.AlarmInstance
 import com.android.deskclock.uidata.TabListener
 import com.android.deskclock.uidata.UiDataModel
 import com.android.deskclock.widget.toast.SnackbarManager
@@ -129,6 +134,42 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
 
     override fun onNewIntent(newIntent: Intent) {
         super.onNewIntent(newIntent)
+
+        when (newIntent.action) {
+            ACTION_SHOW_STOPWATCH -> {
+                val label = intent.getIntExtra(Events.EXTRA_EVENT_LABEL, R.string.label_intent)
+                Events.sendStopwatchEvent(R.string.action_show, label)
+
+                // Open DeskClock positioned on the stopwatch tab.
+                UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.STOPWATCH
+            }
+
+            ACTION_SHOW_TIMER -> {
+                val label = intent.getIntExtra(Events.EXTRA_EVENT_LABEL, R.string.label_intent)
+                Events.sendTimerEvent(R.string.action_show, label)
+
+                // Change to the timers tab.
+                UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.TIMERS
+            }
+
+            ACTION_SHOW_AND_DISMISS_ALARM -> {
+                val uri: Uri = newIntent.data!!
+                val instance: AlarmInstance? =
+                    AlarmInstance.getInstance(contentResolver, AlarmInstance.getId(uri))
+
+                if (instance == null) {
+                    LogUtils.e("Null alarminstance for SHOW_AND_DISMISS")
+                    // dismiss the notification
+                    val id: Int = intent.getIntExtra(AlarmNotifications.EXTRA_NOTIFICATION_ID, -1)
+                    if (id != -1) {
+                        NotificationManagerCompat.from(this).cancel(id)
+                    }
+                    return
+                }
+
+                AlarmStateManager.deleteInstanceAndUpdateParent(this, instance)
+            }
+        }
 
         // Fragments may query the latest intent for information, so update the intent.
         setIntent(newIntent)
@@ -627,5 +668,18 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
                 updateFab(FabContainer.FAB_AND_BUTTONS_IMMEDIATE)
             }
         }
+    }
+
+    companion object {
+        const val ACTION_PREFIX = "com.android.deskclock.action."
+
+        /** Shows the tab with the stopwatch */
+        const val ACTION_SHOW_STOPWATCH = ACTION_PREFIX + "SHOW_STOPWATCH"
+
+        /** Shows the tab with timers; scrolls to a specific timer. */
+        const val ACTION_SHOW_TIMER = ACTION_PREFIX + "SHOW_TIMER"
+
+        /** Shows the alarm and dismisses the instance */
+        const val ACTION_SHOW_AND_DISMISS_ALARM = ACTION_PREFIX + "SHOW_AND_DISMISS_ALARM"
     }
 }

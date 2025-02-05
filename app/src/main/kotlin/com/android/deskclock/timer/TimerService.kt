@@ -74,19 +74,6 @@ class TimerService : Service() {
             val timer: Timer = DataModel.dataModel.getTimer(timerId) ?: return START_NOT_STICKY
 
             when (action) {
-                ACTION_SHOW_TIMER -> {
-                    Events.sendTimerEvent(R.string.action_show, label)
-
-                    // Change to the timers tab.
-                    UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.TIMERS
-
-                    // Open DeskClock which is now positioned on the timers tab and show the timer
-                    // in question.
-                    val showTimers = Intent(this, DeskClock::class.java)
-                            .putExtra(EXTRA_TIMER_ID, timerId)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(showTimers)
-                }
                 ACTION_START_TIMER -> {
                     Events.sendTimerEvent(R.string.action_start, label)
                     DataModel.dataModel.startTimer(this, timer)
@@ -118,26 +105,22 @@ class TimerService : Service() {
     }
 
     companion object {
-        private const val ACTION_PREFIX = "com.android.deskclock.action."
-
-        /** Shows the tab with timers; scrolls to a specific timer.  */
-        const val ACTION_SHOW_TIMER = ACTION_PREFIX + "SHOW_TIMER"
         /** Pauses running timers; resets expired timers.  */
-        const val ACTION_PAUSE_TIMER = ACTION_PREFIX + "PAUSE_TIMER"
+        const val ACTION_PAUSE_TIMER = DeskClock.ACTION_PREFIX + "PAUSE_TIMER"
         /** Starts the sole timer.  */
-        const val ACTION_START_TIMER = ACTION_PREFIX + "START_TIMER"
+        const val ACTION_START_TIMER = DeskClock.ACTION_PREFIX + "START_TIMER"
         /** Resets the timer.  */
-        const val ACTION_RESET_TIMER = ACTION_PREFIX + "RESET_TIMER"
+        const val ACTION_RESET_TIMER = DeskClock.ACTION_PREFIX + "RESET_TIMER"
         /** Adds an extra minute to the timer.  */
-        const val ACTION_ADD_MINUTE_TIMER = ACTION_PREFIX + "ADD_MINUTE_TIMER"
+        const val ACTION_ADD_MINUTE_TIMER = DeskClock.ACTION_PREFIX + "ADD_MINUTE_TIMER"
         /** Extra for many actions specific to a given timer.  */
         const val EXTRA_TIMER_ID = "com.android.deskclock.extra.TIMER_ID"
 
-        private const val ACTION_TIMER_EXPIRED = ACTION_PREFIX + "TIMER_EXPIRED"
-        private const val ACTION_UPDATE_NOTIFICATION = ACTION_PREFIX + "UPDATE_NOTIFICATION"
-        private const val ACTION_RESET_EXPIRED_TIMERS = ACTION_PREFIX + "RESET_EXPIRED_TIMERS"
-        private const val ACTION_RESET_UNEXPIRED_TIMERS = ACTION_PREFIX + "RESET_UNEXPIRED_TIMERS"
-        private const val ACTION_RESET_MISSED_TIMERS = ACTION_PREFIX + "RESET_MISSED_TIMERS"
+        private const val ACTION_TIMER_EXPIRED = DeskClock.ACTION_PREFIX + "TIMER_EXPIRED"
+        private const val ACTION_UPDATE_NOTIFICATION = DeskClock.ACTION_PREFIX + "UPDATE_NOTIFICATION"
+        private const val ACTION_RESET_EXPIRED_TIMERS = DeskClock.ACTION_PREFIX + "RESET_EXPIRED_TIMERS"
+        private const val ACTION_RESET_UNEXPIRED_TIMERS = DeskClock.ACTION_PREFIX + "RESET_UNEXPIRED_TIMERS"
+        private const val ACTION_RESET_MISSED_TIMERS = DeskClock.ACTION_PREFIX + "RESET_MISSED_TIMERS"
 
         @JvmStatic
         fun createTimerExpiredIntent(context: Context, timer: Timer?): Intent {

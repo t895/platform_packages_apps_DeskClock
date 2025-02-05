@@ -152,9 +152,6 @@ class AlarmStateManager : BroadcastReceiver() {
         // Intent action to trigger an instance state change.
         const val CHANGE_STATE_ACTION = "change_state"
 
-        // Intent action to show the alarm and dismiss the instance
-        const val SHOW_AND_DISMISS_ALARM_ACTION = "show_and_dismiss_alarm"
-
         // Intent action for an AlarmManager alarm serving only to set the next alarm indicators
         private const val INDICATOR_ACTION = "indicator"
 
@@ -971,32 +968,6 @@ class AlarmStateManager : BroadcastReceiver() {
                 } else {
                     registerInstance(context, instance, true)
                 }
-            } else if (SHOW_AND_DISMISS_ALARM_ACTION == action) {
-                val uri: Uri = intent.getData()!!
-                val instance: AlarmInstance? =
-                        AlarmInstance.getInstance(context.getContentResolver(),
-                        AlarmInstance.getId(uri))
-
-                if (instance == null) {
-                    LogUtils.e("Null alarminstance for SHOW_AND_DISMISS")
-                    // dismiss the notification
-                    val id: Int = intent.getIntExtra(AlarmNotifications.EXTRA_NOTIFICATION_ID, -1)
-                    if (id != -1) {
-                        NotificationManagerCompat.from(context).cancel(id)
-                    }
-                    return
-                }
-
-                val alarmId = instance.mAlarmId ?: Alarm.INVALID_ID
-                val viewAlarmIntent: Intent =
-                    Alarm.createIntent(context, DeskClock::class.java, alarmId)
-                        .putExtra(AlarmClockFragment.SCROLL_TO_ALARM_INTENT_EXTRA, alarmId)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                // Open DeskClock which is now positioned on the alarms tab.
-                context.startActivity(viewAlarmIntent)
-
-                deleteInstanceAndUpdateParent(context, instance)
             }
         }
 

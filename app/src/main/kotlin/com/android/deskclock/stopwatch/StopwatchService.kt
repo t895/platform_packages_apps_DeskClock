@@ -41,15 +41,6 @@ class StopwatchService : Service() {
         val action: String? = intent.getAction()
         val label: Int = intent.getIntExtra(Events.EXTRA_EVENT_LABEL, R.string.label_intent)
         when (action) {
-            ACTION_SHOW_STOPWATCH -> {
-                Events.sendStopwatchEvent(R.string.action_show, label)
-
-                // Open DeskClock positioned on the stopwatch tab.
-                UiDataModel.uiDataModel.selectedTab = UiDataModel.Tab.STOPWATCH
-                val showStopwatch: Intent = Intent(this, DeskClock::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(showStopwatch)
-            }
             ACTION_START_STOPWATCH -> {
                 Events.sendStopwatchEvent(R.string.action_start, label)
                 DataModel.dataModel.startStopwatch()
@@ -72,21 +63,16 @@ class StopwatchService : Service() {
     }
 
     companion object {
-        private const val ACTION_PREFIX = "com.android.deskclock.action."
-
-        // shows the tab with the stopwatch
-        const val ACTION_SHOW_STOPWATCH = ACTION_PREFIX + "SHOW_STOPWATCH"
-
         // starts the current stopwatch
-        const val ACTION_START_STOPWATCH = ACTION_PREFIX + "START_STOPWATCH"
+        const val ACTION_START_STOPWATCH = DeskClock.ACTION_PREFIX + "START_STOPWATCH"
 
         // pauses the current stopwatch that's currently running
-        const val ACTION_PAUSE_STOPWATCH = ACTION_PREFIX + "PAUSE_STOPWATCH"
+        const val ACTION_PAUSE_STOPWATCH = DeskClock.ACTION_PREFIX + "PAUSE_STOPWATCH"
 
         // laps the stopwatch that's currently running
-        const val ACTION_LAP_STOPWATCH = ACTION_PREFIX + "LAP_STOPWATCH"
+        const val ACTION_LAP_STOPWATCH = DeskClock.ACTION_PREFIX + "LAP_STOPWATCH"
 
         // resets the stopwatch if it's stopped
-        const val ACTION_RESET_STOPWATCH = ACTION_PREFIX + "RESET_STOPWATCH"
+        const val ACTION_RESET_STOPWATCH = DeskClock.ACTION_PREFIX + "RESET_STOPWATCH"
     }
 }
