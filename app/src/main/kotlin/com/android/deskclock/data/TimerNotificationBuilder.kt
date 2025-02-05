@@ -19,7 +19,6 @@ package com.android.deskclock.data
 import android.annotation.TargetApi
 import android.app.AlarmManager
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -40,6 +39,7 @@ import androidx.core.content.ContextCompat
 
 import com.android.deskclock.AlarmUtils
 import com.android.deskclock.DeskClock
+import com.android.deskclock.NotificationUtils
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.events.Events
@@ -52,24 +52,14 @@ import com.android.deskclock.timer.TimerService
 internal class TimerNotificationBuilder {
 
     fun isChannelCreated(notificationManager: NotificationManagerCompat): Boolean {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            if(notificationManager.getNotificationChannelCompat(TIMER_MODEL_NOTIFICATION_CHANNEL_ID) != null) {
-                return true
-            } else {
-                return false
-            }
-        }
-        return false
+        return notificationManager.getNotificationChannelCompat(NotificationUtils.TIMER_MODEL_NOTIFICATION_CHANNEL_ID) != null
     }
 
-    fun buildChannel(context: Context, notificationManager: NotificationManagerCompat) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    TIMER_MODEL_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
-        }
+    fun buildChannel(context: Context) {
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.TIMER_MODEL_NOTIFICATION_CHANNEL_ID
+        )
     }
 
     fun build(context: Context, nm: NotificationModel, unexpired: List<Timer>): Notification {
@@ -169,7 +159,7 @@ internal class TimerNotificationBuilder {
             )
 
         val notification: Builder = Builder(
-                context, TIMER_MODEL_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.TIMER_MODEL_NOTIFICATION_CHANNEL_ID)
                 .setOngoing(true)
                 .setLocalOnly(true)
                 .setShowWhen(false)
@@ -287,7 +277,7 @@ internal class TimerNotificationBuilder {
         val pendingFullScreen: PendingIntent = Utils.pendingActivityIntent(context, fullScreen)
 
         val notification: Builder = Builder(
-                context, TIMER_MODEL_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.FIRING_NOTIFICATION_CHANNEL_ID)
                 .setOngoing(true)
                 .setLocalOnly(true)
                 .setShowWhen(false)
@@ -314,6 +304,8 @@ internal class TimerNotificationBuilder {
             }
             notification.setContentTitle(stateText).setContentText(contentTextPreN)
         }
+
+        NotificationUtils.createChannel(context, NotificationUtils.FIRING_NOTIFICATION_CHANNEL_ID)
 
         return notification.build()
     }
@@ -378,7 +370,7 @@ internal class TimerNotificationBuilder {
             )
 
         val notification: Builder = Builder(
-                context, TIMER_MODEL_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.TIMER_MODEL_NOTIFICATION_CHANNEL_ID)
                 .setLocalOnly(true)
                 .setShowWhen(false)
                 .setAutoCancel(false)
@@ -419,11 +411,6 @@ internal class TimerNotificationBuilder {
     }
 
     companion object {
-        /**
-         * Notification channel containing all TimerModel notifications.
-         */
-        private const val TIMER_MODEL_NOTIFICATION_CHANNEL_ID = "TimerModelNotification"
-
         private const val REQUEST_CODE_UPCOMING = 0
 
         /**

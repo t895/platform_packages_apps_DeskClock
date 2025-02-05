@@ -718,7 +718,7 @@ internal class TimerModel(
         val notification: Notification =
                 mNotificationBuilder.build(mContext, mNotificationModel, unexpired)
         val notificationId = mNotificationModel.unexpiredTimerNotificationId
-        mNotificationBuilder.buildChannel(mContext, mNotificationManager)
+        mNotificationBuilder.buildChannel(mContext)
 
         // Notifications should be hidden if the app is open.
         if (mNotificationModel.isApplicationInForeground) {
@@ -753,7 +753,7 @@ internal class TimerModel(
         val notification: Notification = mNotificationBuilder.buildMissed(mContext,
                 mNotificationModel, missed)
         val notificationId = mNotificationModel.missedTimerNotificationId
-        mNotificationBuilder.buildChannel(mContext, mNotificationManager)
+        mNotificationBuilder.buildChannel(mContext)
         mNotificationManager.notify(notificationId, notification)
     }
 
@@ -779,7 +779,7 @@ internal class TimerModel(
         // Otherwise build and post a foreground notification reflecting the latest expired timers.
         val notification: Notification = mNotificationBuilder.buildHeadsUp(mContext, expired)
         val notificationId = mNotificationModel.expiredTimerNotificationId
-        mNotificationBuilder.buildChannel(mContext, mNotificationManager)
+        mNotificationBuilder.buildChannel(mContext)
         mService!!.startForeground(
             notificationId,
             notification,
