@@ -18,7 +18,6 @@ package com.android.deskclock.alarms
 
 import android.annotation.TargetApi
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -36,6 +35,7 @@ import com.android.deskclock.AlarmClockFragment
 import com.android.deskclock.AlarmUtils
 import com.android.deskclock.DeskClock
 import com.android.deskclock.LogUtils
+import com.android.deskclock.NotificationUtils
 import com.android.deskclock.provider.Alarm
 import com.android.deskclock.provider.AlarmInstance
 import com.android.deskclock.provider.ClockContract.InstancesColumns
@@ -48,31 +48,6 @@ import java.util.Locale
 
 internal object AlarmNotifications {
     const val EXTRA_NOTIFICATION_ID = "extra_notification_id"
-
-    /**
-     * Notification channel containing all low priority notifications.
-     */
-    private const val ALARM_LOW_PRIORITY_NOTIFICATION_CHANNEL_ID = "alarmLowPriorityNotification"
-
-    /**
-     * Notification channel containing all high priority notifications.
-     */
-    private const val ALARM_HIGH_PRIORITY_NOTIFICATION_CHANNEL_ID = "alarmHighPriorityNotification"
-
-    /**
-     * Notification channel containing all snooze notifications.
-     */
-    private const val ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID = "alarmSnoozeNotification"
-
-    /**
-     * Notification channel containing all missed notifications.
-     */
-    private const val ALARM_MISSED_NOTIFICATION_CHANNEL_ID = "alarmMissedNotification"
-
-    /**
-     * Notification channel containing all alarm notifications.
-     */
-    private const val ALARM_NOTIFICATION_CHANNEL_ID = "alarmNotification"
 
     /**
      * Formats times such that chronological order and lexicographical order agree.
@@ -111,14 +86,14 @@ internal object AlarmNotifications {
 
     @JvmStatic
     @Synchronized
-    fun showLowPriorityNotification(
+    fun showLowPriorityUpcomingAlarmNotification(
         context: Context,
         instance: AlarmInstance
     ) {
         LogUtils.v("Displaying low priority notification for alarm instance: " + instance.mId)
 
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(
-                context, ALARM_LOW_PRIORITY_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID)
                 .setShowWhen(false)
                 .setContentTitle(context.getString(
                         R.string.alarm_alert_predismiss_title))
@@ -159,28 +134,26 @@ internal object AlarmNotifications {
                 viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
 
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_LOW_PRIORITY_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            nm.createNotificationChannel(channel)
-        }
         val notification: Notification = builder.build()
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
+            NotificationManager.IMPORTANCE_LOW
+        )
         nm.notify(id, notification)
         updateUpcomingAlarmGroupNotification(context, -1, notification)
     }
 
     @JvmStatic
     @Synchronized
-    fun showHighPriorityNotification(
+    fun showHighPriorityUpcomingAlarmNotification(
         context: Context,
         instance: AlarmInstance
     ) {
         LogUtils.v("Displaying high priority notification for alarm instance: " + instance.mId)
 
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(
-                context, ALARM_HIGH_PRIORITY_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID)
                 .setShowWhen(false)
                 .setContentTitle(context.getString(
                         R.string.alarm_alert_predismiss_title))
@@ -213,14 +186,12 @@ internal object AlarmNotifications {
         builder.setContentIntent(PendingIntent.getActivity(context, id,
                 viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
 
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
+            NotificationManager.IMPORTANCE_LOW
+        )
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_HIGH_PRIORITY_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_HIGH)
-            nm.createNotificationChannel(channel)
-        }
         val notification: Notification = builder.build()
         nm.notify(id, notification)
         updateUpcomingAlarmGroupNotification(context, -1, notification)
@@ -291,15 +262,13 @@ internal object AlarmNotifications {
             return
         }
 
-        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_HIGH)
-            nm.createNotificationChannel(channel)
-        }
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
+            NotificationManager.IMPORTANCE_LOW
+        )
 
+        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
         val firstUpcoming: Notification? = getFirstActiveNotification(context, UPCOMING_GROUP_KEY,
                 canceledNotificationId, postedNotification)
         if (firstUpcoming == null) {
@@ -310,14 +279,14 @@ internal object AlarmNotifications {
         var summary: Notification? = getActiveGroupSummaryNotification(context, UPCOMING_GROUP_KEY)
         if (summary == null ||
                 summary.contentIntent != firstUpcoming.contentIntent) {
-            summary = NotificationCompat.Builder(context, ALARM_NOTIFICATION_CHANNEL_ID)
+            summary = NotificationCompat.Builder(context, NotificationUtils.ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID)
                     .setShowWhen(false)
                     .setContentIntent(firstUpcoming.contentIntent)
                     .setColor(ContextCompat.getColor(context, R.color.default_background))
                     .setSmallIcon(R.drawable.stat_notify_alarm)
                     .setGroup(UPCOMING_GROUP_KEY)
                     .setGroupSummary(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setCategory(NotificationCompat.CATEGORY_EVENT)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setLocalOnly(true)
@@ -335,15 +304,12 @@ internal object AlarmNotifications {
             return
         }
 
-        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_HIGH)
-            nm.createNotificationChannel(channel)
-        }
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.ALARM_MISSED_NOTIFICATION_CHANNEL_ID
+        )
 
+        val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
         val firstMissed: Notification? = getFirstActiveNotification(context, MISSED_GROUP_KEY,
                 canceledNotificationId, postedNotification)
         if (firstMissed == null) {
@@ -354,14 +320,11 @@ internal object AlarmNotifications {
         var summary: Notification? = getActiveGroupSummaryNotification(context, MISSED_GROUP_KEY)
         if (summary == null ||
                 summary.contentIntent != firstMissed.contentIntent) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(
-                        ALARM_MISSED_NOTIFICATION_CHANNEL_ID,
-                        context.getString(R.string.default_label),
-                        NotificationManagerCompat.IMPORTANCE_HIGH)
-                nm.createNotificationChannel(channel)
-            }
-            summary = NotificationCompat.Builder(context, ALARM_NOTIFICATION_CHANNEL_ID)
+            NotificationUtils.createChannel(
+                context,
+                NotificationUtils.ALARM_MISSED_NOTIFICATION_CHANNEL_ID
+            )
+            summary = NotificationCompat.Builder(context, NotificationUtils.ALARM_MISSED_NOTIFICATION_CHANNEL_ID)
                     .setShowWhen(false)
                     .setContentIntent(firstMissed.contentIntent)
                     .setColor(ContextCompat.getColor(context, R.color.default_background))
@@ -386,7 +349,7 @@ internal object AlarmNotifications {
         LogUtils.v("Displaying snoozed notification for alarm instance: " + instance.mId)
 
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(
-                context, ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID)
                 .setShowWhen(false)
                 .setContentTitle(instance.getLabelOrDefault(context))
                 .setContentText(context.getString(R.string.alarm_alert_snooze_until,
@@ -395,7 +358,7 @@ internal object AlarmNotifications {
                 .setSmallIcon(R.drawable.stat_notify_alarm)
                 .setAutoCancel(false)
                 .setSortKey(createSortKey(instance))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
@@ -418,14 +381,11 @@ internal object AlarmNotifications {
         builder.setContentIntent(PendingIntent.getActivity(context, id,
                 viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
 
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID
+        )
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            nm.createNotificationChannel(channel)
-        }
         val notification: Notification = builder.build()
         nm.notify(id, notification)
         updateUpcomingAlarmGroupNotification(context, -1, notification)
@@ -442,7 +402,7 @@ internal object AlarmNotifications {
         val label = instance.mLabel
         val alarmTime: String = AlarmUtils.getFormattedTime(context, instance.alarmTime)
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(
-                context, ALARM_MISSED_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.ALARM_MISSED_NOTIFICATION_CHANNEL_ID)
                 .setShowWhen(false)
                 .setContentTitle(context.getString(R.string.alarm_missed_title))
                 .setContentText(if (instance.mLabel!!.isEmpty()) {
@@ -485,14 +445,8 @@ internal object AlarmNotifications {
 
         builder.setContentIntent(pendingShowApp)
 
+        NotificationUtils.createChannel(context, NotificationUtils.ALARM_MISSED_NOTIFICATION_CHANNEL_ID)
         val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    ALARM_MISSED_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            nm.createNotificationChannel(channel)
-        }
         val notification: Notification = builder.build()
         nm.notify(id, notification)
         updateMissedAlarmGroupNotification(context, -1, notification)
@@ -504,7 +458,7 @@ internal object AlarmNotifications {
 
         val resources: Resources = service.getResources()
         val notification: NotificationCompat.Builder = NotificationCompat.Builder(
-                service, ALARM_NOTIFICATION_CHANNEL_ID)
+                service, NotificationUtils.FIRING_NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(instance.getLabelOrDefault(service))
                 .setContentText(AlarmUtils.getFormattedTime(
                         service, instance.alarmTime))
@@ -575,6 +529,8 @@ internal object AlarmNotifications {
         )
         notification.setPriority(NotificationCompat.PRIORITY_MAX)
 
+        NotificationUtils.createChannel(service, NotificationUtils.FIRING_NOTIFICATION_CHANNEL_ID)
+
         clearNotification(service, instance)
         service.startForeground(
             ALARM_FIRING_NOTIFICATION_ID,
@@ -601,10 +557,10 @@ internal object AlarmNotifications {
     fun updateNotification(context: Context, instance: AlarmInstance) {
         when (instance.mAlarmState) {
             InstancesColumns.LOW_NOTIFICATION_STATE -> {
-                showLowPriorityNotification(context, instance)
+                showLowPriorityUpcomingAlarmNotification(context, instance)
             }
             InstancesColumns.HIGH_NOTIFICATION_STATE -> {
-                showHighPriorityNotification(context, instance)
+                showHighPriorityUpcomingAlarmNotification(context, instance)
             }
             InstancesColumns.SNOOZE_STATE -> showSnoozeNotification(context, instance)
             InstancesColumns.MISSED_STATE -> showMissedNotification(context, instance)
