@@ -16,6 +16,7 @@
 
 package com.android.deskclock
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.content.Context
 import android.util.ArraySet
@@ -77,7 +78,7 @@ object NotificationUtils {
         )
         CHANNEL_PROPS[ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.alarm_upcoming_channel,
-                IMPORTANCE_LOW
+                IMPORTANCE_LOW,
         )
         CHANNEL_PROPS[FIRING_NOTIFICATION_CHANNEL_ID] = intArrayOf(
                 R.string.firing_alarms_timers_channel,
@@ -94,8 +95,9 @@ object NotificationUtils {
         )
     }
 
+    @SuppressLint("WrongConstant")
     @JvmStatic
-    fun createChannel(context: Context, id: String) {
+    fun createChannel(context: Context, id: String, importance: Int = Int.MIN_VALUE) {
         if (!Utils.isOOrLater) {
             return
         }
@@ -107,8 +109,11 @@ object NotificationUtils {
 
         val properties = CHANNEL_PROPS[id]!!
         val nameId = properties[0]
-        val importance = properties[1]
-        val channel = NotificationChannel(id, context.getString(nameId), importance)
+        val channel = NotificationChannel(
+            id,
+            context.getString(nameId),
+            if (importance != Int.MIN_VALUE) importance else properties[1]
+        )
         if (properties.size >= 3) {
             val bits = properties[2]
             channel.enableLights(bits and ENABLE_LIGHTS != 0)

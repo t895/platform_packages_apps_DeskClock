@@ -33,13 +33,10 @@ import android.provider.Settings
 import android.provider.Settings.System.NEXT_ALARM_FORMATTED
 import android.text.format.DateFormat
 import android.widget.Toast
-import androidx.core.app.NotificationManagerCompat
 
 import com.android.deskclock.AlarmAlertWakeLock
-import com.android.deskclock.AlarmClockFragment
 import com.android.deskclock.AlarmUtils
 import com.android.deskclock.AsyncHandler
-import com.android.deskclock.DeskClock
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.events.Events
 import com.android.deskclock.LogUtils
@@ -432,7 +429,7 @@ class AlarmStateManager : BroadcastReceiver() {
             AlarmInstance.updateInstance(contentResolver, instance)
 
             // Setup instance notification and scheduling timers
-            AlarmNotifications.showLowPriorityNotification(context, instance)
+            AlarmNotifications.showLowPriorityUpcomingAlarmNotification(context, instance)
             scheduleInstanceStateChange(context, instance.highNotificationTime,
                     instance, InstancesColumns.HIGH_NOTIFICATION_STATE)
         }
@@ -476,7 +473,7 @@ class AlarmStateManager : BroadcastReceiver() {
             AlarmInstance.updateInstance(contentResolver, instance)
 
             // Setup instance notification and scheduling timers
-            AlarmNotifications.showHighPriorityNotification(context, instance)
+            AlarmNotifications.showHighPriorityUpcomingAlarmNotification(context, instance)
             scheduleInstanceStateChange(context, instance.alarmTime,
                     instance, InstancesColumns.FIRED_STATE)
         }

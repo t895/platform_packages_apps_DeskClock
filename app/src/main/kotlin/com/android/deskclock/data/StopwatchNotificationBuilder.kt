@@ -17,7 +17,6 @@
 package com.android.deskclock.data
 
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -34,6 +33,7 @@ import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.android.deskclock.DeskClock
+import com.android.deskclock.NotificationUtils
 
 import com.android.deskclock.R
 import com.android.deskclock.Utils
@@ -44,14 +44,11 @@ import com.android.deskclock.stopwatch.StopwatchService
  * Builds notification to reflect the latest state of the stopwatch and recorded laps.
  */
 internal class StopwatchNotificationBuilder {
-    fun buildChannel(context: Context, notificationManager: NotificationManagerCompat) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                    STOPWATCH_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.default_label),
-                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
-        }
+    fun buildChannel(context: Context) {
+        NotificationUtils.createChannel(
+            context,
+            NotificationUtils.STOPWATCH_NOTIFICATION_CHANNEL_ID
+        )
     }
 
     fun build(context: Context, nm: NotificationModel, stopwatch: Stopwatch?): Notification {
@@ -138,7 +135,7 @@ internal class StopwatchNotificationBuilder {
             content.setViewVisibility(R.id.state, VISIBLE)
         }
         val notification: Builder = Builder(
-                context, STOPWATCH_NOTIFICATION_CHANNEL_ID)
+                context, NotificationUtils.STOPWATCH_NOTIFICATION_CHANNEL_ID)
                 .setLocalOnly(true)
                 .setOngoing(running)
                 .setCustomContentView(content)
@@ -158,12 +155,5 @@ internal class StopwatchNotificationBuilder {
         }
 
         return notification.build()
-    }
-
-    companion object {
-        /**
-         * Notification channel containing all stopwatch notifications.
-         */
-        private const val STOPWATCH_NOTIFICATION_CHANNEL_ID = "StopwatchNotification"
     }
 }
