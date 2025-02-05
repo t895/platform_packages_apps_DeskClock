@@ -408,8 +408,8 @@ class AlarmStateManager : BroadcastReceiver() {
 
             // Setup instance notification and scheduling timers
             AlarmNotifications.clearNotification(context, instance)
-            scheduleInstanceStateChange(context, instance.lowNotificationTime,
-                    instance, InstancesColumns.LOW_NOTIFICATION_STATE)
+            scheduleInstanceStateChange(context, instance.upcomingNotificationTime,
+                    instance, InstancesColumns.UPCOMING_NOTIFICATION_STATE)
         }
 
         /**
@@ -425,13 +425,13 @@ class AlarmStateManager : BroadcastReceiver() {
 
             // Update alarm state in db
             val contentResolver: ContentResolver = context.getContentResolver()
-            instance.mAlarmState = InstancesColumns.LOW_NOTIFICATION_STATE
+            instance.mAlarmState = InstancesColumns.UPCOMING_NOTIFICATION_STATE
             AlarmInstance.updateInstance(contentResolver, instance)
 
             // Setup instance notification and scheduling timers
-            AlarmNotifications.showLowPriorityUpcomingAlarmNotification(context, instance)
-            scheduleInstanceStateChange(context, instance.highNotificationTime,
-                    instance, InstancesColumns.HIGH_NOTIFICATION_STATE)
+            AlarmNotifications.showUpcomingAlarmNotification(context, instance)
+            scheduleInstanceStateChange(context, instance.alarmTime,
+                instance, InstancesColumns.FIRED_STATE)
         }
 
         /**
@@ -452,28 +452,6 @@ class AlarmStateManager : BroadcastReceiver() {
 
             // Setup instance notification and scheduling timers
             AlarmNotifications.clearNotification(context, instance)
-            scheduleInstanceStateChange(context, instance.highNotificationTime,
-                    instance, InstancesColumns.HIGH_NOTIFICATION_STATE)
-        }
-
-        /**
-         * This will set the alarm instance to the HIGH_NOTIFICATION_STATE and update
-         * the application notifications and schedule any state changes that need
-         * to occur in the future.
-         *
-         * @param context application context
-         * @param instance to set state to
-         */
-        private fun setHighNotificationState(context: Context, instance: AlarmInstance) {
-            LogUtils.i("Setting high notification state to instance " + instance.mId)
-
-            // Update alarm state in db
-            val contentResolver: ContentResolver = context.getContentResolver()
-            instance.mAlarmState = InstancesColumns.HIGH_NOTIFICATION_STATE
-            AlarmInstance.updateInstance(contentResolver, instance)
-
-            // Setup instance notification and scheduling timers
-            AlarmNotifications.showHighPriorityUpcomingAlarmNotification(context, instance)
             scheduleInstanceStateChange(context, instance.alarmTime,
                     instance, InstancesColumns.FIRED_STATE)
         }
@@ -715,8 +693,7 @@ class AlarmStateManager : BroadcastReceiver() {
             val currentTime = currentTime
             val alarmTime: Calendar = instance.alarmTime
             val timeoutTime: Calendar? = instance.timeout
-            val lowNotificationTime: Calendar = instance.lowNotificationTime
-            val highNotificationTime: Calendar = instance.highNotificationTime
+            val upcomingNotificationTime: Calendar = instance.upcomingNotificationTime
             val missedTTL: Calendar = instance.missedTimeToLive
 
             // Handle special use cases here
@@ -782,9 +759,7 @@ class AlarmStateManager : BroadcastReceiver() {
                 AlarmNotifications.showSnoozeNotification(context, instance)
                 scheduleInstanceStateChange(context, instance.alarmTime,
                         instance, InstancesColumns.FIRED_STATE)
-            } else if (currentTime.after(highNotificationTime)) {
-                setHighNotificationState(context, instance)
-            } else if (currentTime.after(lowNotificationTime)) {
+            } else if (currentTime.after(upcomingNotificationTime)) {
                 // Only show low notification if it wasn't hidden in the past
                 if (instance.mAlarmState == InstancesColumns.HIDE_NOTIFICATION_STATE) {
                     setHideNotificationState(context, instance)
@@ -905,14 +880,11 @@ class AlarmStateManager : BroadcastReceiver() {
             }
             when (state) {
                 InstancesColumns.SILENT_STATE -> setSilentState(context, instance)
-                InstancesColumns.LOW_NOTIFICATION_STATE -> {
+                InstancesColumns.UPCOMING_NOTIFICATION_STATE -> {
                     setLowNotificationState(context, instance)
                 }
                 InstancesColumns.HIDE_NOTIFICATION_STATE -> {
                     setHideNotificationState(context, instance)
-                }
-                InstancesColumns.HIGH_NOTIFICATION_STATE -> {
-                    setHighNotificationState(context, instance)
                 }
                 InstancesColumns.FIRED_STATE -> setFiredState(context, instance)
                 InstancesColumns.SNOOZE_STATE -> {

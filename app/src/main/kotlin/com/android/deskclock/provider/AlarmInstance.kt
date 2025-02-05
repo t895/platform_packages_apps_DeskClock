@@ -163,22 +163,10 @@ class AlarmInstance : InstancesColumns {
      *
      * @return the time
      */
-    val lowNotificationTime: Calendar
+    val upcomingNotificationTime: Calendar
         get() {
             val calendar = alarmTime
-            calendar.add(Calendar.HOUR_OF_DAY, LOW_NOTIFICATION_HOUR_OFFSET)
-            return calendar
-        }
-
-    /**
-     * Return the time when a high priority notification should be shown.
-     *
-     * @return the time
-     */
-    val highNotificationTime: Calendar
-        get() {
-            val calendar = alarmTime
-            calendar.add(Calendar.MINUTE, HIGH_NOTIFICATION_MINUTE_OFFSET)
+            calendar.add(Calendar.HOUR_OF_DAY, UPCOMING_NOTIFICATION_HOUR_OFFSET)
             return calendar
         }
 
@@ -240,14 +228,9 @@ class AlarmInstance : InstancesColumns {
 
     companion object {
         /**
-         * Offset from alarm time to show low priority notification
+         * Offset from alarm time to show upcoming alarm notification
          */
-        const val LOW_NOTIFICATION_HOUR_OFFSET = -2
-
-        /**
-         * Offset from alarm time to show high priority notification
-         */
-        const val HIGH_NOTIFICATION_MINUTE_OFFSET = -30
+        const val UPCOMING_NOTIFICATION_HOUR_OFFSET = -2
 
         /**
          * Offset from alarm time to stop showing missed notification.

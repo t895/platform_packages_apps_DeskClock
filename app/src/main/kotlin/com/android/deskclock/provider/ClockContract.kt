@@ -168,27 +168,18 @@ object ClockContract {
              *
              * Can transitions to:
              * HIDE_NOTIFICATION_STATE
-             * HIGH_NOTIFICATION_STATE
              * DISMISSED_STATE
+             * FIRED_STATE
              */
-            const val LOW_NOTIFICATION_STATE = 1
+            const val UPCOMING_NOTIFICATION_STATE = 1
 
             /**
              * Alarm state to hide low priority alarm notification.
              *
              * Can transitions to:
-             * HIGH_NOTIFICATION_STATE
-             */
-            const val HIDE_NOTIFICATION_STATE = 2
-
-            /**
-             * Alarm state to show high priority alarm notification.
-             *
-             * Can transitions to:
-             * DISMISSED_STATE
              * FIRED_STATE
              */
-            const val HIGH_NOTIFICATION_STATE = 3
+            const val HIDE_NOTIFICATION_STATE = 2
 
             /**
              * Alarm state when alarm is in snooze.
