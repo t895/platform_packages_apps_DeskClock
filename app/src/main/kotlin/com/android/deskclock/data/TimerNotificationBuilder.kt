@@ -39,6 +39,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 import com.android.deskclock.AlarmUtils
+import com.android.deskclock.DeskClock
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.events.Events
@@ -155,15 +156,16 @@ internal class TimerNotificationBuilder {
         }
 
         // Intent to load the app and show the timer when the notification is tapped.
-        val showApp: Intent = Intent(context, TimerService::class.java)
-                .setAction(TimerService.ACTION_SHOW_TIMER)
-                .putExtra(TimerService.EXTRA_TIMER_ID, timer.id)
-                .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_notification)
+        val showTimers = Intent(context, DeskClock::class.java)
+            .setAction(DeskClock.ACTION_SHOW_TIMER)
+            .putExtra(TimerService.EXTRA_TIMER_ID, timer.id)
+            .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_notification)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         val pendingShowApp: PendingIntent =
-            PendingIntent.getService(
-                context, REQUEST_CODE_UPCOMING, showApp,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.getActivity(
+                context, 0, showTimers,
+                PendingIntent.FLAG_IMMUTABLE
             )
 
         val notification: Builder = Builder(
@@ -363,15 +365,16 @@ internal class TimerNotificationBuilder {
         }
 
         // Intent to load the app and show the timer when the notification is tapped.
-        val showApp: Intent = Intent(context, TimerService::class.java)
-                .setAction(TimerService.ACTION_SHOW_TIMER)
-                .putExtra(TimerService.EXTRA_TIMER_ID, timer.id)
-                .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_notification)
+        val showTimers = Intent(context, DeskClock::class.java)
+            .setAction(DeskClock.ACTION_SHOW_TIMER)
+            .putExtra(TimerService.EXTRA_TIMER_ID, timer.id)
+            .putExtra(Events.EXTRA_EVENT_LABEL, R.string.label_notification)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         val pendingShowApp: PendingIntent =
-            PendingIntent.getService(
-                context, REQUEST_CODE_MISSING, showApp,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.getActivity(
+                context, 0, showTimers,
+                PendingIntent.FLAG_IMMUTABLE
             )
 
         val notification: Builder = Builder(
@@ -422,7 +425,6 @@ internal class TimerNotificationBuilder {
         private const val TIMER_MODEL_NOTIFICATION_CHANNEL_ID = "TimerModelNotification"
 
         private const val REQUEST_CODE_UPCOMING = 0
-        private const val REQUEST_CODE_MISSING = 1
 
         /**
          * @param timer the timer on which to base the chronometer display

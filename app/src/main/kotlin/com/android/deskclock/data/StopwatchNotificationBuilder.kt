@@ -33,6 +33,7 @@ import androidx.core.app.NotificationCompat.Action
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.android.deskclock.DeskClock
 
 import com.android.deskclock.R
 import com.android.deskclock.Utils
@@ -57,13 +58,14 @@ internal class StopwatchNotificationBuilder {
         @StringRes val eventLabel: Int = R.string.label_notification
 
         // Intent to load the app when the notification is tapped.
-        val showApp: Intent = Intent(context, StopwatchService::class.java)
-                .setAction(StopwatchService.ACTION_SHOW_STOPWATCH)
-                .putExtra(Events.EXTRA_EVENT_LABEL, eventLabel)
+        val showApp: Intent = Intent(context, DeskClock::class.java)
+            .setAction(DeskClock.ACTION_SHOW_STOPWATCH)
+            .putExtra(Events.EXTRA_EVENT_LABEL, eventLabel)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        val pendingShowApp: PendingIntent = PendingIntent.getService(
+        val pendingShowApp: PendingIntent = PendingIntent.getActivity(
             context, 0, showApp,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         // Compute some values required below.
