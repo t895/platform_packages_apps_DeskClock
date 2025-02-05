@@ -651,8 +651,8 @@ public class TimerFragmentTest {
         assertEquals(0, viewPager.getCurrentItem());
 
         final Intent intent =
-                new Intent(ApplicationProvider.getApplicationContext(), TimerService.class)
-                        .setAction(TimerService.ACTION_SHOW_TIMER)
+                new Intent(ApplicationProvider.getApplicationContext(), DeskClock.class)
+                        .setAction(DeskClock.ACTION_SHOW_TIMER)
                         .putExtra(TimerService.EXTRA_TIMER_ID, 0);
         rule.getActivity().setIntent(intent);
         restartFragment();
