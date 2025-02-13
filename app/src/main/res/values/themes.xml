@@ -15,60 +15,23 @@
   limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
-    <style name="Theme.DeskClock" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:colorBackgroundFloating" tools:targetApi="23">
+    <style name="Theme.DeskClock" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:colorBackgroundFloating">
             ?attr/colorBackgroundFloating
         </item>
-        <item name="android:navigationBarColor" tools:targetApi="21">?attr/colorPrimaryDark</item>
-        <item name="android:popupTheme" tools:targetApi="21">?attr/popupTheme</item>
-        <item name="android:timePickerStyle" tools:targetApi="21">@style/Widget.TimePicker</item>
-        <item name="android:windowBackground">@color/default_background</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:timePickerStyle" >@style/Widget.TimePicker</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
-        <!-- Attributes from androidx.appcompat.appcompat -->
-        <item name="colorAccent">#DA4336</item>
-        <item name="colorBackgroundFloating">#303030</item>
-        <item name="colorControlActivated">@android:color/white</item>
-        <item name="colorControlNormal">?android:attr/textColorPrimary</item>
-        <item name="colorPrimaryDark">#66000000</item>
         <item name="imageButtonStyle">@style/Widget.ImageButton</item>
-        <item name="popupTheme">@style/ThemeOverlay.Popup</item>
-    </style>
-
-    <style name="Theme.DeskClock.Settings">
-        <!-- Attributes from androidx.appcompat.appcompat -->
-        <item name="actionBarStyle">@style/Widget.ActionBar</item>
-        <item name="colorControlActivated">?attr/colorAccent</item>
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">false</item>
-
-        <!-- Attributes from androidx.preference.-->
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    </style>
-
-    <style name="Theme.DeskClock.RingtonePicker">
-        <!-- Attributes from androidx.appcompat.appcompat -->
-        <item name="actionBarStyle">@style/Widget.ActionBar</item>
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">false</item>
-    </style>
-
-    <style name="Theme.DeskClock.CitySelection">
-        <!-- Attributes from androidx.appcompat.appcompat -->
-        <item name="actionBarStyle">@style/Widget.ActionBar.NoTitle</item>
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">false</item>
-    </style>
-
-    <style name="ThemeOverlay.Control.Accent" parent="ThemeOverlay.AppCompat">
-        <!-- Attributes from androidx.appcompat.appcompat -->
-        <item name="colorControlActivated">?attr/colorAccent</item>
-    </style>
-
-    <style name="ThemeOverlay.Popup" parent="ThemeOverlay.AppCompat">
-        <item name="android:colorBackground">?attr/colorBackgroundFloating</item>
+        <item name="popupTheme">@style/ThemeOverlay.Material3</item>
+        <item name="android:popupTheme">@style/ThemeOverlay.Material3</item>
+        <item name="popupMenuStyle">@style/ThemeOverlay.Material3</item>
+        <item name="android:popupMenuStyle">@style/ThemeOverlay.Material3</item>
+        <item name="android:contextPopupMenuStyle">@style/ThemeOverlay.Material3</item>
     </style>
 
 </resources>

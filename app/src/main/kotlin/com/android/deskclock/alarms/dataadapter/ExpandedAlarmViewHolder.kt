@@ -176,7 +176,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
                             android.R.attr.windowBackground))
                 } else {
                     dayButton.isChecked = false
-                    dayButton.setTextColor(Color.WHITE)
+                    dayButton.setTextColor(ThemeUtils.resolveColor(context, R.attr.colorOnSurface))
                 }
             }
         }

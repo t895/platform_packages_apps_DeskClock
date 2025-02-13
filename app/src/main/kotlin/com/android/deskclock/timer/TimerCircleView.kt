@@ -69,8 +69,8 @@ class TimerCircleView @JvmOverloads constructor(
         mStrokeSize = resources.getDimension(R.dimen.circletimer_circle_size)
         mRadiusOffset = Utils.calculateRadiusOffset(mStrokeSize, dotDiameter, 0f)
 
-        mRemainderColor = Color.WHITE
-        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorAccent)
+        mRemainderColor = ThemeUtils.resolveColor(context, R.attr.colorPrimary)
+        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorPrimaryContainer)
 
         mPaint.isAntiAlias = true
         mPaint.style = Paint.Style.STROKE
@@ -144,6 +144,7 @@ class TimerCircleView @JvmOverloads constructor(
         val dotAngleRadians = Math.toRadians(dotAngleDegrees.toDouble())
         val dotX = xCenter + (radius * cos(dotAngleRadians)).toFloat()
         val dotY = yCenter + (radius * sin(dotAngleRadians)).toFloat()
+        mFill.color = mRemainderColor
         canvas.drawCircle(dotX, dotY, mDotRadius, mFill)
 
         if (mTimer!!.isRunning) {

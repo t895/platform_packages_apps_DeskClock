@@ -28,9 +28,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textStyle="bold"
-        android:textSize="@dimen/label_text_size"
-        android:textColor="@color/white" />
-    <CheckBox
+        android:textSize="@dimen/label_text_size" />
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/city_onoff"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

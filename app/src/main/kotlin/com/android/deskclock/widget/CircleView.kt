@@ -26,6 +26,7 @@ import android.view.Gravity
 import android.view.View
 
 import com.android.deskclock.R
+import com.android.deskclock.ThemeUtils
 
 import kotlin.math.min
 
@@ -59,7 +60,10 @@ class CircleView @JvmOverloads constructor(
         mCenterY = a.getDimension(R.styleable.CircleView_centerY, 0.0f)
         radius = a.getDimension(R.styleable.CircleView_radius, 0.0f)
 
-        mCirclePaint.color = a.getColor(R.styleable.CircleView_fillColor, Color.WHITE)
+        mCirclePaint.color = a.getColor(
+            R.styleable.CircleView_fillColor,
+            ThemeUtils.resolveColor(context, R.attr.colorOnSurface)
+        )
 
         a.recycle()
     }

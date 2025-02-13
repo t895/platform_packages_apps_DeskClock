@@ -32,7 +32,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.TwoStatePreference
 
 import com.android.deskclock.BaseActivity
-import com.android.deskclock.DropShadowController
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.actionbarmenu.MenuItemControllerFactory
@@ -40,17 +40,13 @@ import com.android.deskclock.actionbarmenu.NavUpMenuItemController
 import com.android.deskclock.actionbarmenu.OptionsMenuManager
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.ringtone.RingtonePickerActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 /**
  * Settings for the Alarm Clock.
  */
 class SettingsActivity : BaseActivity() {
     private val mOptionsMenuManager = OptionsMenuManager()
-
-    /**
-     * The controller that shows the drop shadow when content is not scrolled to the top.
-     */
-    private lateinit var mDropShadowController: DropShadowController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +62,13 @@ class SettingsActivity : BaseActivity() {
                     .disallowAddToBackStack()
                     .commit()
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        val fragment = getSupportFragmentManager().findFragmentById(R.id.main) as PrefsFragment
-        mDropShadowController = DropShadowController(dropShadow, fragment.getListView())
-    }
-
-    override fun onPause() {
-        mDropShadowController.stop()
-        super.onPause()
+        val toolbar = findViewById<MaterialToolbar>(R.id.settings_toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setInsetsListener { left, top, right, bottom ->
+            toolbar.setPadding(left, 0, right, 0)
+            findViewById<View>(R.id.main).setPadding(left, 0, right, bottom)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

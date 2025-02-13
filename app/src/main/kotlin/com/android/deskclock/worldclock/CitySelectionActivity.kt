@@ -34,9 +34,11 @@ import android.widget.CompoundButton
 import android.widget.ListView
 import android.widget.SectionIndexer
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 
 import com.android.deskclock.BaseActivity
-import com.android.deskclock.DropShadowController
+import com.android.deskclock.InsetsUtil.setInsetsListener
+import com.android.deskclock.ItemAdapter
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.actionbarmenu.MenuItemController
@@ -47,6 +49,7 @@ import com.android.deskclock.actionbarmenu.SearchMenuItemController
 import com.android.deskclock.actionbarmenu.SettingsMenuItemController
 import com.android.deskclock.data.City
 import com.android.deskclock.data.DataModel
+import com.google.android.material.appbar.MaterialToolbar
 
 import java.util.ArrayList
 import java.util.Calendar
@@ -70,7 +73,7 @@ class CitySelectionActivity : BaseActivity() {
     /**
      * The list of all selected and unselected cities, indexed and possibly filtered.
      */
-    private lateinit var mCitiesList: ListView
+    private lateinit var mCitiesList: RecyclerView
 
     /**
      * The adapter that presents all of the selected and unselected cities.
@@ -87,17 +90,12 @@ class CitySelectionActivity : BaseActivity() {
      */
     private lateinit var mSearchMenuItemController: SearchMenuItemController
 
-    /**
-     * The controller that shows the drop shadow when content is not scrolled to the top.
-     */
-    private lateinit var mDropShadowController: DropShadowController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.cities_activity)
         mSearchMenuItemController = SearchMenuItemController(
-                getSupportActionBar()!!.getThemedContext(),
+                this,
                 object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         return false
@@ -115,8 +113,18 @@ class CitySelectionActivity : BaseActivity() {
                 .addMenuItemController(SortOrderMenuItemController())
                 .addMenuItemController(SettingsMenuItemController(this))
                 .addMenuItemController(*MenuItemControllerFactory.buildMenuItemControllers(this))
-        mCitiesList = findViewById(R.id.cities_list) as ListView
+        mCitiesList = findViewById(R.id.cities_list)
         mCitiesList.adapter = mCitiesAdapter
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.cities_toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setInsetsListener { left, top, right, bottom ->
+            toolbar.setPadding(left, 0, right, 0)
+            mCitiesList.setPadding(left, 0, right, bottom)
+        }
+
+        // We have to remove the activity's title here or else it will be picked up by the toolbar
+        title = ""
 
         updateFastScrolling()
     }
@@ -131,15 +139,10 @@ class CitySelectionActivity : BaseActivity() {
 
         // Recompute the contents of the adapter before displaying on screen.
         mCitiesAdapter.refresh()
-
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        mDropShadowController = DropShadowController(dropShadow, mCitiesList)
     }
 
     override fun onPause() {
         super.onPause()
-
-        mDropShadowController.stop()
 
         // Save the selected cities.
         DataModel.dataModel.selectedCities = mCitiesAdapter.selectedCities
@@ -200,7 +203,7 @@ class CitySelectionActivity : BaseActivity() {
         private val mContext: Context,
         /** Menu item controller for search. Search query is maintained here. */
         private val mSearchMenuItemController: SearchMenuItemController
-    ) : BaseAdapter(), View.OnClickListener,
+    ) : ItemAdapter<ItemAdapter.ItemHolder<City>>, View.OnClickListener,
             CompoundButton.OnCheckedChangeListener, SectionIndexer {
         private val mInflater: LayoutInflater = LayoutInflater.from(mContext)
 

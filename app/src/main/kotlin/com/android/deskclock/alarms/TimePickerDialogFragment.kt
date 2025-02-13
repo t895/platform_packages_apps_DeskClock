@@ -16,56 +16,16 @@
 
 package com.android.deskclock.alarms
 
-import android.app.Dialog
-import android.app.TimePickerDialog
-import android.content.Context
-import android.os.Bundle
 import android.text.format.DateFormat
-import android.widget.TimePicker
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-
-import com.android.deskclock.Utils
-
-import java.util.Calendar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 
 /**
  * DialogFragment used to show TimePicker.
  */
-class TimePickerDialogFragment : DialogFragment() {
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val listener = getParentFragment() as OnTimeSetListener
-
-        val now = Calendar.getInstance()
-        val args: Bundle = arguments ?: Bundle.EMPTY
-        val hour: Int = args.getInt(ARG_HOUR, now[Calendar.HOUR_OF_DAY])
-        val minute: Int = args.getInt(ARG_MINUTE, now[Calendar.MINUTE])
-        return if (Utils.isLOrLater) {
-            val context: Context = requireActivity()
-            TimePickerDialog(context, { _, hourOfDay, minuteOfHour ->
-                listener.onTimeSet(this@TimePickerDialogFragment, hourOfDay, minuteOfHour)
-            }, hour, minute, DateFormat.is24HourFormat(context))
-        } else {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(requireActivity())
-            val context: Context = builder.getContext()
-
-            val timePicker = TimePicker(context)
-            timePicker.setCurrentHour(hour)
-            timePicker.setCurrentMinute(minute)
-            timePicker.setIs24HourView(DateFormat.is24HourFormat(context))
-
-            builder.setView(timePicker)
-                    .setPositiveButton(android.R.string.ok, { _, _ ->
-                        listener.onTimeSet(this@TimePickerDialogFragment,
-                                timePicker.getCurrentHour(), timePicker.getCurrentMinute())
-                    }).setNegativeButton(android.R.string.cancel, null /* listener */)
-                    .create()
-        }
-    }
-
+object TimePickerDialogFragment {
     /**
      * The callback interface used to indicate the user is done filling in the time (e.g. they
      * clicked on the 'OK' button).
@@ -74,61 +34,53 @@ class TimePickerDialogFragment : DialogFragment() {
         /**
          * Called when the user is done setting a new time and the dialog has closed.
          *
-         * @param fragment the fragment associated with this listener
          * @param hourOfDay the hour that was set
          * @param minute the minute that was set
          */
-        fun onTimeSet(fragment: TimePickerDialogFragment?, hourOfDay: Int, minute: Int)
+        fun onTimeSet(hourOfDay: Int, minute: Int)
     }
 
-    companion object {
-        /**
-         * Tag for timer picker fragment in FragmentManager.
-         */
-        private const val TAG = "TimePickerDialogFragment"
+    /**
+     * Tag for timer picker fragment in FragmentManager.
+     */
+    const val TAG = "TimePickerDialogFragment"
 
-        private const val ARG_HOUR = TAG + "_hour"
-        private const val ARG_MINUTE = TAG + "_minute"
+    @JvmStatic
+    fun show(fragment: Fragment) {
+        show(fragment, -1 /* hour */, -1 /* minute */)
+    }
 
-        @JvmStatic
-        fun show(fragment: Fragment) {
-            show(fragment, -1 /* hour */, -1 /* minute */)
+    fun show(parentFragment: Fragment, hourOfDay: Int, minute: Int) {
+        val manager: FragmentManager = parentFragment.parentFragmentManager
+        if (manager.isDestroyed) {
+            return
         }
 
-        fun show(parentFragment: Fragment, hourOfDay: Int, minute: Int) {
-            require(parentFragment is OnTimeSetListener) {
-                "Fragment must implement OnTimeSetListener"
-            }
-
-            val manager: FragmentManager = parentFragment.getChildFragmentManager()
-            if (manager == null || manager.isDestroyed()) {
-                return
-            }
-
-            // Make sure the dialog isn't already added.
-            removeTimeEditDialog(manager)
-
-            val fragment = TimePickerDialogFragment()
-
-            val args = Bundle()
-            if (hourOfDay in 0..23) {
-                args.putInt(ARG_HOUR, hourOfDay)
-            }
-            if (minute in 0..59) {
-                args.putInt(ARG_MINUTE, minute)
-            }
-
-            fragment.setArguments(args)
-            fragment.show(manager, TAG)
-        }
-
-        @JvmStatic
-        fun removeTimeEditDialog(manager: FragmentManager?) {
-            manager?.let { manager ->
-                val prev: Fragment? = manager.findFragmentByTag(TAG)
-                prev?.let {
-                    manager.beginTransaction().remove(it).commit()
+        val picker = MaterialTimePicker.Builder()
+            .setHour(hourOfDay)
+            .setMinute(minute)
+            .setTimeFormat(
+                if (DateFormat.is24HourFormat(parentFragment.context)) {
+                    TimeFormat.CLOCK_24H
+                } else {
+                    TimeFormat.CLOCK_12H
                 }
+            )
+            .build()
+
+        picker.addOnPositiveButtonClickListener {
+            (parentFragment as OnTimeSetListener).onTimeSet(picker.hour, picker.minute)
+        }
+
+        picker.show(manager, TAG)
+    }
+
+    @JvmStatic
+    fun removeTimeEditDialog(manager: FragmentManager?) {
+        manager?.let { manager ->
+            val prev: Fragment? = manager.findFragmentByTag(TAG)
+            prev?.let {
+                manager.beginTransaction().remove(it).commit()
             }
         }
     }

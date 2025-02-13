@@ -35,6 +35,9 @@ import android.view.View
 import androidx.annotation.Keep
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
@@ -44,7 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import com.android.deskclock.BaseActivity
-import com.android.deskclock.DropShadowController
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.LogUtils
 import com.android.deskclock.R
 import com.android.deskclock.RingtonePreviewKlaxon
@@ -58,6 +61,7 @@ import com.android.deskclock.actionbarmenu.OptionsMenuManager
 import com.android.deskclock.alarms.AlarmUpdateHandler
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.provider.Alarm
+import com.google.android.material.appbar.MaterialToolbar
 
 /**
  * This activity presents a set of ringtones from which the user may select one. The set includes:
@@ -70,9 +74,6 @@ import com.android.deskclock.provider.Alarm
  */
 // TODO(b/165664115) Replace deprecated AsyncTask calls
 class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>> {
-    /** The controller that shows the drop shadow when content is not scrolled to the top.  */
-    private var mDropShadowController: DropShadowController? = null
-
     /** Generates the items in the activity context menu.  */
     private lateinit var mOptionsMenuManager: OptionsMenuManager
 
@@ -155,23 +156,21 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
         val titleResourceId = intent.getIntExtra(EXTRA_TITLE, 0)
         setTitle(context.getString(titleResourceId))
 
+        val toolbar = findViewById<MaterialToolbar>(R.id.ringtone_toolbar)
+        setSupportActionBar(toolbar)
+
         LoaderManager.getInstance(this).initLoader(0 /* id */, Bundle.EMPTY /* args */,
                 this /* callback */)
 
         registerForContextMenu(mRecyclerView)
-    }
 
-    override fun onResume() {
-        super.onResume()
-
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        mDropShadowController = DropShadowController(dropShadow, mRecyclerView)
+        mRecyclerView.setInsetsListener { left, _, right, bottom ->
+            mRecyclerView.setPadding(left, 0, right, bottom)
+            toolbar.setPadding(left, 0, right, 0)
+        }
     }
 
     override fun onPause() {
-        mDropShadowController!!.stop()
-        mDropShadowController = null
-
         mSelectedRingtoneUri?.let {
             if (mAlarmId != -1L) {
                 val context: Context = getApplicationContext()

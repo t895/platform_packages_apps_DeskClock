@@ -31,33 +31,37 @@
         android:background="@null"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:contentInsetStart="0dp"
-            tools:ignore="RtlSymmetry">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabs"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:tabGravity="fill"
-                app:tabIndicatorColor="@android:color/transparent"
-                app:tabMaxWidth="0dp"
-                app:tabMode="fixed"
-                app:tabPaddingEnd="0dp"
-                app:tabPaddingStart="0dp" />
+                android:layout_height="1dp"
+                android:layout_gravity="bottom|center"
+                android:background="?attr/colorOutlineVariant" />
 
-        </androidx.appcompat.widget.Toolbar>
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:contentInsetStart="0dp"
+                tools:ignore="RtlSymmetry">
 
-        <View
-            android:id="@+id/tab_hairline"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/hairline_height"
-            android:layout_gravity="bottom"
-            android:background="@color/hairline"
-            android:importantForAccessibility="no" />
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="?attr/colorPrimary"
+                    app:tabMaxWidth="0dp"
+                    app:tabMode="fixed"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp" />
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
+        </FrameLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -72,8 +76,6 @@
             android:layout_height="match_parent"
             android:importantForAccessibility="no"
             android:saveEnabled="false" />
-
-        <include layout="@layout/drop_shadow" />
 
     </FrameLayout>
 

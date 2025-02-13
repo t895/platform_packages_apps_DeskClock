@@ -16,6 +16,7 @@
 
 package com.android.deskclock.ringtone
 
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.view.ContextMenu
 import android.view.LayoutInflater
@@ -47,9 +48,6 @@ internal class RingtoneViewHolder private constructor(itemView: View)
 
     override fun onBindItemView(itemHolder: RingtoneHolder) {
         mNameView.text = itemHolder.name
-        val opaque = itemHolder.isSelected || !itemHolder.hasPermissions()
-        mNameView.alpha = if (opaque) 1f else .63f
-        mImageView.alpha = if (opaque) 1f else .63f
         mImageView.clearColorFilter()
 
         val itemViewType: Int = getItemViewType()
@@ -73,8 +71,12 @@ internal class RingtoneViewHolder private constructor(itemView: View)
 
         mSelectedView.visibility = if (itemHolder.isSelected) View.VISIBLE else View.GONE
 
-        val bgColorId = if (itemHolder.isSelected) R.color.white_08p else R.color.transparent
-        itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), bgColorId))
+        val bgColor = if (itemHolder.isSelected) {
+            ThemeUtils.resolveColor(itemView.context, R.attr.colorPrimaryContainer)
+        } else {
+            Color.TRANSPARENT
+        }
+        itemView.setBackgroundColor(bgColor)
 
         if (itemViewType == VIEW_TYPE_CUSTOM_SOUND) {
             itemView.setOnCreateContextMenuListener(this)

@@ -31,7 +31,6 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -39,6 +38,7 @@ import androidx.fragment.app.FragmentManager
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.data.Timer
 import com.android.deskclock.provider.Alarm
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * DialogFragment to edit label.
@@ -68,7 +68,7 @@ class LabelDialogFragment : DialogFragment() {
             label = it.getString(ARG_LABEL, label)
         }
 
-        val dialog: AlertDialog = AlertDialog.Builder(requireActivity())
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
                 .setPositiveButton(android.R.string.ok, OkListener())
                 .setNegativeButton(android.R.string.cancel, null)
                 .setMessage(R.string.label)

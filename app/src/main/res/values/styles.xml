@@ -19,13 +19,11 @@
 
     <style name="no_alarms">
         <item name="android:textSize">@dimen/no_alarm_font_size</item>
-        <item name="android:textColor">@color/white_63p</item>
     </style>
 
     <style name="widget_medium_thin">
         <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:shadowRadius">@dimen/widget_shadow_radius</item>
-        <item name="android:shadowColor">@color/widget_shadow_color</item>
         <item name="android:shadowDy">@dimen/widget_shadow_dy</item>
     </style>
 
@@ -34,28 +32,24 @@
     </style>
 
     <style name="widget_label" parent="label">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.15</item>
         <item name="android:shadowRadius">@dimen/widget_shadow_radius</item>
-        <item name="android:shadowColor">@color/widget_shadow_color</item>
         <item name="android:shadowDy">@dimen/widget_shadow_dy</item>
     </style>
 
     <style name="display_time">
         <item name="android:textSize">56sp</item>
-        <item name="android:textColor">@color/white</item>
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:fontFeatureSettings" tools:targetApi="21">tnum</item>
     </style>
 
     <style name="world_clock_time">
         <item name="android:textSize">48sp</item>
-        <item name="android:textColor">@color/white</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="body">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
+    <style name="body" parent="@style/TextAppearance.Material3.BodyMedium" />
 
     <style name="big_thin">
         <item name="android:textSize">@dimen/big_font_size</item>
@@ -68,8 +62,8 @@
     </style>
 
     <style name="widget_big_thin" parent="big_thin">
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:shadowRadius">@dimen/widget_shadow_radius</item>
-        <item name="android:shadowColor">@color/widget_shadow_color</item>
         <item name="android:shadowDy">@dimen/widget_shadow_dy</item>
     </style>
 
@@ -81,19 +75,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="PrimaryLabelTextParentAppearance">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">@dimen/label_text_size</item>
-    </style>
+    <style name="PrimaryLabelTextAppearance" parent="@style/TextAppearance.Material3.LabelLarge" />
 
-    <style name="PrimaryLabelTextAppearance" parent="PrimaryLabelTextParentAppearance" />
-
-    <style name="SecondaryLabelTextParentAppearance">
-        <item name="android:textColor">@color/white_63p</item>
-        <item name="android:textSize">@dimen/label_text_size</item>
-    </style>
-
-    <style name="SecondaryLabelTextAppearance" parent="SecondaryLabelTextParentAppearance" />
+    <style name="SecondaryLabelTextAppearance" parent="@style/TextAppearance.Material3.LabelLarge" />
 
     <style name="TextAppearance.Tab" parent="TextAppearance.Design.Tab">
         <item name="android:fontFamily">sans-serif-medium</item>

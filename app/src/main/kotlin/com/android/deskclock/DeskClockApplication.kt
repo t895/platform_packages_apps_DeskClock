@@ -27,10 +27,12 @@ import com.android.deskclock.controller.Controller
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.events.LogEventTracker
 import com.android.deskclock.uidata.UiDataModel
+import com.google.android.material.color.DynamicColors
 
 class DeskClockApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         val applicationContext = applicationContext
         val prefs = getDefaultSharedPreferences(applicationContext)

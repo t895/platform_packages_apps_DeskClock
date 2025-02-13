@@ -253,7 +253,7 @@ object Utils {
      */
     fun dimClockView(dim: Boolean, clockView: View) {
         val paint = Paint()
-        paint.color = Color.WHITE
+        paint.color = ThemeUtils.resolveColor(clockView.context, R.attr.colorAccent)
         paint.colorFilter = PorterDuffColorFilter(
                 if (dim) 0x40FFFFFF else -0x3f000001,
                 PorterDuff.Mode.MULTIPLY)

@@ -45,7 +45,7 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
     val daysOfWeek: TextView = itemView.findViewById(R.id.days_of_week) as TextView
     private val upcomingInstanceLabel: TextView =
             itemView.findViewById(R.id.upcoming_instance_label) as TextView
-    private val hairLine: View = itemView.findViewById(R.id.hairline)
+    private val hairLine: View? = itemView.findViewById(R.id.hairline)
 
     init {
         // Expand handler
@@ -171,12 +171,16 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
         arrow.visibility = View.INVISIBLE
 
         val alphaAnimatorSet = AnimatorSet()
-        alphaAnimatorSet.playTogether(
-                ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(hairLine, View.ALPHA, 0f))
+        val alphaAnimators = buildList {
+            add(ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 0f))
+            add(ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 0f))
+            add(ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 0f))
+            add(ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 0f))
+            if (hairLine != null) {
+                add(ObjectAnimator.ofFloat(hairLine, View.ALPHA, 0f))
+            }
+        }
+        alphaAnimatorSet.playTogether(alphaAnimators)
         alphaAnimatorSet.setDuration((duration * ANIM_SHORT_DURATION_MULTIPLIER).toLong())
 
         val oldView: View = itemView
@@ -192,12 +196,16 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
 
     private fun createCollapsingAnimator(oldHolder: AlarmItemViewHolder, duration: Long): Animator {
         val alphaAnimatorSet = AnimatorSet()
-        alphaAnimatorSet.playTogether(
-                ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(hairLine, View.ALPHA, 1f))
+        val alphaAnimators = buildList {
+            add(ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 1f))
+            add(ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 1f))
+            add(ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 1f))
+            add(ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 1f))
+            if (hairLine != null) {
+                add(ObjectAnimator.ofFloat(hairLine, View.ALPHA, 1f))
+            }
+        }
+        alphaAnimatorSet.playTogether(alphaAnimators)
         val standardDelay = (duration * ANIM_STANDARD_DELAY_MULTIPLIER).toLong()
         alphaAnimatorSet.setDuration(standardDelay)
         alphaAnimatorSet.setStartDelay(duration - standardDelay)
@@ -237,7 +245,7 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
         alarmLabel.alpha = alpha
         daysOfWeek.alpha = alpha
         upcomingInstanceLabel.alpha = alpha
-        hairLine.alpha = alpha
+        hairLine?.alpha = alpha
         preemptiveDismissButton.alpha = alpha
     }
 

@@ -21,5 +21,4 @@
     android:gravity="center"
     android:includeFontPadding="false"
     android:singleLine="true"
-    android:text="@string/loading_widget"
-    android:textColor="@color/white" />
+    android:text="@string/loading_widget" />

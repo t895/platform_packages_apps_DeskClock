@@ -22,13 +22,13 @@
     android:viewportHeight="24"
     android:viewportWidth="24">
     <group
-        android:name="day_button_circle_white"
+        android:name="day_button_circle_primary"
         android:alpha="1.0"
         android:translateX="12"
         android:translateY="12">
         <path
             android:name="path"
-            android:fillColor="#FFFFFFFF"
+            android:fillColor="?attr/colorPrimary"
             android:pathData="M 0.0,8.0 c -4.41999816895,0.0 -8.0,-3.58200073242 -8.0,-8.0 c 0.0,-4.41799926758 3.58000183105,-8.0 8.0,-8.0 c 4.41999816895,0.0 8.0,3.58200073242 8.0,8.0 c 0.0,4.41799926758 -3.58000183105,8.0 -8.0,8.0 Z"/>
     </group>
 </vector>

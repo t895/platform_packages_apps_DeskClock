@@ -56,6 +56,9 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
     /** The color indicating the completed portion of the lap.  */
     private val mCompletedColor: Int
 
+    /** The color indicating the marker for the end of the prior lap.   */
+    private val mMarkerColor: Int
+
     /** The size of the stroke that paints the lap circle.  */
     private val mStrokeSize: Float
 
@@ -79,8 +82,9 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
         mMarkerStrokeSize = resources.getDimension(R.dimen.circletimer_marker_size)
         mRadiusOffset = Utils.calculateRadiusOffset(mStrokeSize, dotDiameter, mMarkerStrokeSize)
 
-        mRemainderColor = Color.WHITE
-        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorAccent)
+        mRemainderColor = ThemeUtils.resolveColor(context, R.attr.colorPrimaryContainer)
+        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorPrimary)
+        mMarkerColor = ThemeUtils.resolveColor(context, R.attr.colorOutline)
 
         mPaint.setAntiAlias(true)
         mPaint.setStyle(Paint.Style.STROKE)
@@ -142,7 +146,7 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
 
         // Starting on lap 2, a marker can be drawn indicating where the prior lap ended.
         if (lapCount > 1) {
-            mPaint.setColor(mRemainderColor)
+            mPaint.setColor(mMarkerColor)
             mPaint.setStrokeWidth(mMarkerStrokeSize)
             val markerAngle = priorLap.lapTime.toFloat() / firstLapTime.toFloat() * 360
             val startAngle = 270 + markerAngle

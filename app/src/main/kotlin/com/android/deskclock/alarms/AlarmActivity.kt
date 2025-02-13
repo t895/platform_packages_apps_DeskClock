@@ -203,7 +203,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         mDismissButton.setOnClickListener(this)
 
         mAlarmAnimator = AnimatorUtils.getScaleAnimator(mAlarmButton, 1.0f, 0.0f)
-        mSnoozeAnimator = getButtonAnimator(mSnoozeButton, Color.WHITE)
+        mSnoozeAnimator = getButtonAnimator(mSnoozeButton, ThemeUtils.resolveColor(this, R.attr.colorAccent))
         mDismissAnimator = getButtonAnimator(mDismissButton, mCurrentHourColor)
         mPulseAnimator = ObjectAnimator.ofPropertyValuesHolder(pulseView,
                 PropertyValuesHolder.ofFloat(CircleView.RADIUS, 0.0f, pulseView.radius),
@@ -502,7 +502,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
 
         getAlertAnimator(mDismissButton, R.string.alarm_alert_off_text, null /* infoText */,
                 getString(R.string.alarm_alert_off_text) /* accessibilityText */,
-                Color.WHITE, mCurrentHourColor).start()
+                ThemeUtils.resolveColor(this, R.attr.colorAccent), mCurrentHourColor).start()
 
         AlarmStateManager.deleteInstanceAndUpdateParent(this, mAlarmInstance!!)
 
@@ -545,14 +545,23 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
     }
 
     private fun getButtonAnimator(button: ImageView?, tintColor: Int): ValueAnimator {
-        return ObjectAnimator.ofPropertyValuesHolder(button,
-                PropertyValuesHolder.ofFloat(View.SCALE_X, BUTTON_SCALE_DEFAULT, 1.0f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, BUTTON_SCALE_DEFAULT, 1.0f),
-                PropertyValuesHolder.ofInt(AnimatorUtils.BACKGROUND_ALPHA, 0, 255),
-                PropertyValuesHolder.ofInt(AnimatorUtils.DRAWABLE_ALPHA,
-                        BUTTON_DRAWABLE_ALPHA_DEFAULT, 255),
-                PropertyValuesHolder.ofObject(AnimatorUtils.DRAWABLE_TINT,
-                        AnimatorUtils.ARGB_EVALUATOR, Color.WHITE, tintColor))
+        return ObjectAnimator.ofPropertyValuesHolder(
+            button,
+            PropertyValuesHolder.ofFloat(View.SCALE_X, BUTTON_SCALE_DEFAULT, 1.0f),
+            PropertyValuesHolder.ofFloat(View.SCALE_Y, BUTTON_SCALE_DEFAULT, 1.0f),
+            PropertyValuesHolder.ofInt(AnimatorUtils.BACKGROUND_ALPHA, 0, 255),
+            PropertyValuesHolder.ofInt(
+                AnimatorUtils.DRAWABLE_ALPHA,
+                BUTTON_DRAWABLE_ALPHA_DEFAULT,
+                255
+            ),
+            PropertyValuesHolder.ofObject(
+                AnimatorUtils.DRAWABLE_TINT,
+                AnimatorUtils.ARGB_EVALUATOR,
+                ThemeUtils.resolveColor(this, R.attr.colorAccent),
+                tintColor
+            )
+        )
     }
 
     private fun getAlarmBounceAnimator(translationX: Float, hintResId: Int): ValueAnimator {
