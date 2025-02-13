@@ -73,7 +73,7 @@ class CitySelectionActivity : BaseActivity() {
     /**
      * The list of all selected and unselected cities, indexed and possibly filtered.
      */
-    private lateinit var mCitiesList: RecyclerView
+    private lateinit var mCitiesList: ListView
 
     /**
      * The adapter that presents all of the selected and unselected cities.
@@ -113,7 +113,7 @@ class CitySelectionActivity : BaseActivity() {
                 .addMenuItemController(SortOrderMenuItemController())
                 .addMenuItemController(SettingsMenuItemController(this))
                 .addMenuItemController(*MenuItemControllerFactory.buildMenuItemControllers(this))
-        mCitiesList = findViewById(R.id.cities_list)
+        mCitiesList = findViewById(R.id.cities_list) as ListView
         mCitiesList.adapter = mCitiesAdapter
 
         val toolbar = findViewById<MaterialToolbar>(R.id.cities_toolbar)
@@ -203,7 +203,7 @@ class CitySelectionActivity : BaseActivity() {
         private val mContext: Context,
         /** Menu item controller for search. Search query is maintained here. */
         private val mSearchMenuItemController: SearchMenuItemController
-    ) : ItemAdapter<ItemAdapter.ItemHolder<City>>, View.OnClickListener,
+    ) : BaseAdapter(), View.OnClickListener,
             CompoundButton.OnCheckedChangeListener, SectionIndexer {
         private val mInflater: LayoutInflater = LayoutInflater.from(mContext)
 
