@@ -29,9 +29,13 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
+import androidx.core.view.updateMargins
+import androidx.core.view.updatePadding
 
 import com.android.deskclock.BaseActivity
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.LogUtils
 import com.android.deskclock.R
 import com.android.deskclock.data.DataModel
@@ -73,7 +77,16 @@ class ExpiredTimersActivity : BaseActivity() {
         mExpiredTimersView = findViewById(R.id.expired_timers_list) as ViewGroup
         mExpiredTimersScrollView = findViewById(R.id.expired_timers_scroll) as ViewGroup
 
-        (findViewById(R.id.fab) as View).setOnClickListener(FabClickListener())
+        val fab = findViewById<View>(R.id.fab)
+        fab.setOnClickListener(FabClickListener())
+        val fabMargin = resources.getDimensionPixelSize(R.dimen.fab_margin)
+        fab.setInsetsListener { _, _, _, bottom ->
+            (layoutParams as? MarginLayoutParams)?.updateMargins(bottom = bottom + fabMargin)
+        }
+
+        mExpiredTimersView.setInsetsListener { _, top, _, bottom ->
+            updatePadding(top = top, bottom = bottom)
+        }
 
         val view: View = findViewById(R.id.expired_timers_activity)
         view.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE

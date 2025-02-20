@@ -24,15 +24,17 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.updatePadding
 import androidx.preference.ListPreference
 import androidx.preference.ListPreferenceDialogFragmentCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.TwoStatePreference
+import androidx.recyclerview.widget.RecyclerView
 
 import com.android.deskclock.BaseActivity
-import com.android.deskclock.DropShadowController
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.actionbarmenu.MenuItemControllerFactory
@@ -40,17 +42,13 @@ import com.android.deskclock.actionbarmenu.NavUpMenuItemController
 import com.android.deskclock.actionbarmenu.OptionsMenuManager
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.ringtone.RingtonePickerActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 /**
  * Settings for the Alarm Clock.
  */
 class SettingsActivity : BaseActivity() {
     private val mOptionsMenuManager = OptionsMenuManager()
-
-    /**
-     * The controller that shows the drop shadow when content is not scrolled to the top.
-     */
-    private lateinit var mDropShadowController: DropShadowController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +64,12 @@ class SettingsActivity : BaseActivity() {
                     .disallowAddToBackStack()
                     .commit()
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        val fragment = getSupportFragmentManager().findFragmentById(R.id.main) as PrefsFragment
-        mDropShadowController = DropShadowController(dropShadow, fragment.getListView())
-    }
-
-    override fun onPause() {
-        mDropShadowController.stop()
-        super.onPause()
+        val toolbar = findViewById<MaterialToolbar>(R.id.settings_toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -111,6 +102,14 @@ class SettingsActivity : BaseActivity() {
                 it.setVisible(hasVibrator)
             }
             loadTimeZoneList()
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            view.findViewById<RecyclerView>(R.id.recycler_view)
+                .setInsetsListener { left, _, right, bottom ->
+                    updatePadding(left = left, right = right, bottom = bottom)
+                }
         }
 
         override fun onActivityCreated(savedInstanceState: Bundle?) {

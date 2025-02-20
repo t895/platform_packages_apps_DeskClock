@@ -34,6 +34,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import androidx.annotation.VisibleForTesting
+import androidx.core.view.updatePadding
 import androidx.viewpager.widget.ViewPager
 
 import com.android.deskclock.data.DataModel
@@ -46,6 +47,7 @@ import com.android.deskclock.AnimatorUtils
 import com.android.deskclock.DeskClock
 import com.android.deskclock.DeskClockFragment
 import com.android.deskclock.FabContainer
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 
@@ -106,6 +108,16 @@ class TimerFragment : DeskClockFragment(UiDataModel.Tab.TIMERS) {
         // If timer setup state is present, retrieve it to be later honored.
         savedInstanceState?.let {
             mTimerSetupState = it.getSerializable(KEY_TIMER_SETUP_STATE)
+        }
+
+        mTimersView!!.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
+        mCreateTimerView.setInsetsListener { left, _, right, bottom ->
+            updatePadding(left = left, right = right, bottom = bottom)
+        }
+        view.findViewById<View>(R.id.page_indicators).setInsetsListener { _, _, _, bottom ->
+            updatePadding(bottom = bottom)
         }
 
         return view

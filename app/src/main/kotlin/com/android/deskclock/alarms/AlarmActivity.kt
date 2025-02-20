@@ -33,7 +33,6 @@ import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
@@ -101,7 +100,6 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
     private var mAlarmInstance: AlarmInstance? = null
     private var mAlarmHandled = false
     private var mVolumeBehavior: AlarmVolumeButtonBehavior? = null
-    private var mCurrentHourColor = 0
     private var mReceiverRegistered = false
     /** Whether the AlarmService is currently bound  */
     private var mServiceBound = false
@@ -195,16 +193,15 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         titleView.setText(mAlarmInstance!!.getLabelOrDefault(this))
         Utils.setTimeFormat(digitalClock, false)
 
-        mCurrentHourColor = ThemeUtils.resolveColor(this, android.R.attr.windowBackground)
-        getWindow().setBackgroundDrawable(ColorDrawable(mCurrentHourColor))
-
         mAlarmButton.setOnTouchListener(this)
         mSnoozeButton.setOnClickListener(this)
         mDismissButton.setOnClickListener(this)
 
+        val colorOnPrimary = ThemeUtils.resolveColor(this, R.attr.colorOnPrimary)
+
         mAlarmAnimator = AnimatorUtils.getScaleAnimator(mAlarmButton, 1.0f, 0.0f)
-        mSnoozeAnimator = getButtonAnimator(mSnoozeButton, Color.WHITE)
-        mDismissAnimator = getButtonAnimator(mDismissButton, mCurrentHourColor)
+        mSnoozeAnimator = getButtonAnimator(mSnoozeButton, colorOnPrimary)
+        mDismissAnimator = getButtonAnimator(mDismissButton, colorOnPrimary)
         mPulseAnimator = ObjectAnimator.ofPropertyValuesHolder(pulseView,
                 PropertyValuesHolder.ofFloat(CircleView.RADIUS, 0.0f, pulseView.radius),
                 PropertyValuesHolder.ofObject(CircleView.FILL_COLOR, AnimatorUtils.ARGB_EVALUATOR,
@@ -471,7 +468,6 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         mAlarmHandled = true
         LOGGER.v("Snoozed: %s", mAlarmInstance)
 
-        val colorAccent = ThemeUtils.resolveColor(this, R.attr.colorAccent)
         setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */)
 
         val snoozeMinutes = DataModel.dataModel.snoozeLength
@@ -481,7 +477,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
                 R.plurals.alarm_alert_snooze_set, snoozeMinutes, snoozeMinutes)
 
         getAlertAnimator(mSnoozeButton, R.string.alarm_alert_snoozed_text, infoText,
-                accessibilityText, colorAccent, colorAccent).start()
+                accessibilityText).start()
 
         AlarmStateManager.setSnoozeState(this, mAlarmInstance!!, false /* showToast */)
 
@@ -501,8 +497,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         setAnimatedFractions(0.0f /* snoozeFraction */, 1.0f /* dismissFraction */)
 
         getAlertAnimator(mDismissButton, R.string.alarm_alert_off_text, null /* infoText */,
-                getString(R.string.alarm_alert_off_text) /* accessibilityText */,
-                Color.WHITE, mCurrentHourColor).start()
+                getString(R.string.alarm_alert_off_text) /* accessibilityText */).start()
 
         AlarmStateManager.deleteInstanceAndUpdateParent(this, mAlarmInstance!!)
 
@@ -552,7 +547,9 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
                 PropertyValuesHolder.ofInt(AnimatorUtils.DRAWABLE_ALPHA,
                         BUTTON_DRAWABLE_ALPHA_DEFAULT, 255),
                 PropertyValuesHolder.ofObject(AnimatorUtils.DRAWABLE_TINT,
-                        AnimatorUtils.ARGB_EVALUATOR, Color.WHITE, tintColor))
+                    AnimatorUtils.ARGB_EVALUATOR,
+                    ThemeUtils.resolveColor(this, R.attr.colorOnSurface), tintColor)
+        )
     }
 
     private fun getAlarmBounceAnimator(translationX: Float, hintResId: Int): ValueAnimator {
@@ -576,9 +573,7 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         source: View,
         titleResId: Int,
         infoText: String?,
-        accessibilityText: String,
-        revealColor: Int,
-        backgroundColor: Int
+        accessibilityText: String
     ): Animator {
         val containerView: ViewGroup = findViewById(android.R.id.content) as ViewGroup
 
@@ -594,10 +589,12 @@ class AlarmActivity : BaseActivity(), View.OnClickListener, View.OnTouchListener
         val startRadius: Float = max(sourceBounds.width(), sourceBounds.height()) / 2.0f
         val endRadius = sqrt(xMax * xMax + yMax * yMax.toDouble()).toFloat()
 
+        val backgroundColor = ThemeUtils.resolveColor(this, R.attr.colorPrimary)
+
         val revealView = CircleView(this)
                 .setCenterX(centerX.toFloat())
                 .setCenterY(centerY.toFloat())
-                .setFillColor(revealColor)
+                .setFillColor(backgroundColor)
         containerView.addView(revealView)
 
         // TODO: Fade out source icon over the reveal (like LOLLIPOP version).

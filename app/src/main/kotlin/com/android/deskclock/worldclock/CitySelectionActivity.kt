@@ -34,9 +34,10 @@ import android.widget.CompoundButton
 import android.widget.ListView
 import android.widget.SectionIndexer
 import android.widget.TextView
+import androidx.core.view.updatePadding
 
 import com.android.deskclock.BaseActivity
-import com.android.deskclock.DropShadowController
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.R
 import com.android.deskclock.Utils
 import com.android.deskclock.actionbarmenu.MenuItemController
@@ -47,6 +48,8 @@ import com.android.deskclock.actionbarmenu.SearchMenuItemController
 import com.android.deskclock.actionbarmenu.SettingsMenuItemController
 import com.android.deskclock.data.City
 import com.android.deskclock.data.DataModel
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 
 import java.util.ArrayList
 import java.util.Calendar
@@ -87,17 +90,12 @@ class CitySelectionActivity : BaseActivity() {
      */
     private lateinit var mSearchMenuItemController: SearchMenuItemController
 
-    /**
-     * The controller that shows the drop shadow when content is not scrolled to the top.
-     */
-    private lateinit var mDropShadowController: DropShadowController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.cities_activity)
         mSearchMenuItemController = SearchMenuItemController(
-                getSupportActionBar()!!.getThemedContext(),
+                this,
                 object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         return false
@@ -118,6 +116,27 @@ class CitySelectionActivity : BaseActivity() {
         mCitiesList = findViewById(R.id.cities_list) as ListView
         mCitiesList.adapter = mCitiesAdapter
 
+        val toolbar = findViewById<MaterialToolbar>(R.id.cities_toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
+
+        mCitiesList.setInsetsListener { left, _, right, bottom ->
+            updatePadding(left = left, right = right, bottom = bottom)
+        }
+
+        // Material app bar does not respond to ListView scroll changes so we have to lift it ourselves
+        val appbar = findViewById<AppBarLayout>(R.id.cities_appbar)
+        mCitiesList.setOnScrollChangeListener { _, _, _, _, _ ->
+            val firstItemVisible = mCitiesList.firstVisiblePosition == 0
+            val itemHasOffset = (mCitiesList.getChildAt(0)?.top ?: 0) != 0
+            appbar.setLifted(!firstItemVisible || itemHasOffset)
+        }
+
+        // We have to remove the activity's title here or else it will be picked up by the toolbar
+        title = ""
+
         updateFastScrolling()
     }
 
@@ -131,15 +150,10 @@ class CitySelectionActivity : BaseActivity() {
 
         // Recompute the contents of the adapter before displaying on screen.
         mCitiesAdapter.refresh()
-
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        mDropShadowController = DropShadowController(dropShadow, mCitiesList)
     }
 
     override fun onPause() {
         super.onPause()
-
-        mDropShadowController.stop()
 
         // Save the selected cities.
         DataModel.dataModel.selectedCities = mCitiesAdapter.selectedCities

@@ -19,7 +19,6 @@ package com.android.deskclock.stopwatch
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -56,6 +55,9 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
     /** The color indicating the completed portion of the lap.  */
     private val mCompletedColor: Int
 
+    /** The color indicating the marker for the end of the prior lap.   */
+    private val mMarkerColor: Int
+
     /** The size of the stroke that paints the lap circle.  */
     private val mStrokeSize: Float
 
@@ -79,8 +81,9 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
         mMarkerStrokeSize = resources.getDimension(R.dimen.circletimer_marker_size)
         mRadiusOffset = Utils.calculateRadiusOffset(mStrokeSize, dotDiameter, mMarkerStrokeSize)
 
-        mRemainderColor = Color.WHITE
-        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorAccent)
+        mRemainderColor = ThemeUtils.resolveColor(context, R.attr.colorPrimaryContainer)
+        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorPrimary)
+        mMarkerColor = ThemeUtils.resolveColor(context, R.attr.colorOutline)
 
         mPaint.setAntiAlias(true)
         mPaint.setStyle(Paint.Style.STROKE)
@@ -108,12 +111,12 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
         mPaint.setStrokeWidth(mStrokeSize)
         val laps = laps
 
-        // If a reference lap does not exist or should not be drawn, draw a simple white circle.
+        // If a reference lap does not exist or should not be drawn, draw a simple circle.
         if (laps.isEmpty() || !DataModel.dataModel.canAddMoreLaps()) {
-            // Draw a complete white circle; no red arc required.
+            // Draw a complete circle; no arc required.
             canvas.drawCircle(xCenter.toFloat(), yCenter.toFloat(), radius, mPaint)
 
-            // No need to continue animating the plain white circle.
+            // No need to continue animating the plain circle.
             return
         }
 
@@ -125,24 +128,24 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
         val firstLapTime = firstLap.lapTime
         val currentLapTime = stopwatch.totalTime - priorLap.accumulatedTime
 
-        // Draw a combination of red and white arcs to create a circle.
+        // Draw a combination of arcs to create a circle.
         mArcRect.top = yCenter - radius
         mArcRect.bottom = yCenter + radius
         mArcRect.left = xCenter - radius
         mArcRect.right = xCenter + radius
-        val redPercent = currentLapTime.toFloat() / firstLapTime.toFloat()
-        val whitePercent: Float = 1f - if (redPercent > 1) 1f else redPercent
+        val completedPercent = currentLapTime.toFloat() / firstLapTime.toFloat()
+        val remainingPercent: Float = 1f - if (completedPercent > 1) 1f else completedPercent
 
-        // Draw a white arc to indicate the amount of reference lap that remains.
-        canvas.drawArc(mArcRect, 270 + (1 - whitePercent) * 360, whitePercent * 360, false, mPaint)
+        // Draw an arc to indicate the amount of reference lap that remains.
+        canvas.drawArc(mArcRect, 270 + (1 - remainingPercent) * 360, remainingPercent * 360, false, mPaint)
 
-        // Draw a red arc to indicate the amount of reference lap completed.
+        // Draw an arc to indicate the amount of reference lap completed.
         mPaint.setColor(mCompletedColor)
-        canvas.drawArc(mArcRect, 270f, redPercent * 360, false, mPaint)
+        canvas.drawArc(mArcRect, 270f, completedPercent * 360, false, mPaint)
 
         // Starting on lap 2, a marker can be drawn indicating where the prior lap ended.
         if (lapCount > 1) {
-            mPaint.setColor(mRemainderColor)
+            mPaint.setColor(mMarkerColor)
             mPaint.setStrokeWidth(mMarkerStrokeSize)
             val markerAngle = priorLap.lapTime.toFloat() / firstLapTime.toFloat() * 360
             val startAngle = 270 + markerAngle
@@ -150,8 +153,8 @@ class StopwatchCircleView(context: Context, attrs: AttributeSet?) : View(context
             canvas.drawArc(mArcRect, startAngle, sweepAngle, false, mPaint)
         }
 
-        // Draw a red dot to indicate current position relative to reference lap.
-        val dotAngleDegrees = 270 + redPercent * 360
+        // Draw a dot to indicate current position relative to reference lap.
+        val dotAngleDegrees = 270 + completedPercent * 360
         val dotAngleRadians = Math.toRadians(dotAngleDegrees.toDouble())
         val dotX = xCenter + (radius * cos(dotAngleRadians)).toFloat()
         val dotY = yCenter + (radius * sin(dotAngleRadians)).toFloat()

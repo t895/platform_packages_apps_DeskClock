@@ -34,10 +34,8 @@ internal class AddCustomRingtoneViewHolder private constructor(itemView: View)
         selectedView.visibility = View.GONE
         val nameView = itemView.findViewById<View>(R.id.ringtone_name) as TextView
         nameView.text = itemView.context.getString(R.string.add_new_sound)
-        nameView.alpha = 0.63f
         val imageView = itemView.findViewById<View>(R.id.ringtone_image) as ImageView
-        imageView.setImageResource(R.drawable.ic_add_white_24dp)
-        imageView.alpha = 0.63f
+        imageView.setImageResource(R.drawable.ic_add_24dp)
     }
 
     override fun onClick(view: View) {

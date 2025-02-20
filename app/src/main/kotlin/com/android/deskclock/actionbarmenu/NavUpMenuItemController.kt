@@ -29,7 +29,6 @@ class NavUpMenuItemController(private val activity: Activity) : MenuItemControll
     override val id: Int = android.R.id.home
 
     override fun onCreateOptionsItem(menu: Menu) {
-        // "Home" option is automatically created by the Toolbar.
     }
 
     override fun onPrepareOptionsItem(item: MenuItem) {

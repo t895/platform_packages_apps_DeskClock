@@ -43,6 +43,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -51,6 +52,7 @@ import com.android.deskclock.AnimatorUtils
 import com.android.deskclock.DeskClockFragment
 import com.android.deskclock.FabContainer
 import com.android.deskclock.FabContainer.UpdateFabFlag
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.data.Lap
 import com.android.deskclock.data.Stopwatch
@@ -137,6 +139,13 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         }
         mLapsList.setAdapter(mLapsAdapter)
 
+        v.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
+        mLapsList.setInsetsListener { _, _, _, bottom ->
+            updatePadding(bottom = bottom + resources.getDimension(R.dimen.fab_height).toInt())
+        }
+
         // Timer text serves as a virtual start/stop button.
         mMainTimeText = v.findViewById(R.id.stopwatch_time_text) as TextView
         mHundredthsTimeText = v.findViewById(R.id.stopwatch_hundredths_text) as TextView
@@ -151,8 +160,8 @@ class StopwatchFragment : DeskClockFragment(UiDataModel.Tab.STOPWATCH) {
         }
 
         val c: Context = mMainTimeText.getContext()
-        val colorAccent = ThemeUtils.resolveColor(c, R.attr.colorAccent)
-        val textColorPrimary = ThemeUtils.resolveColor(c, android.R.attr.textColorPrimary)
+        val colorAccent = ThemeUtils.resolveColor(c, R.attr.colorPrimaryVariant)
+        val textColorPrimary = ThemeUtils.resolveColor(c, R.attr.colorOnSurface)
         val timeTextColor =
                 ColorStateList(
                         arrayOf(intArrayOf(-state_activated, -state_pressed), intArrayOf()),

@@ -37,7 +37,7 @@
                     android:translateY="-1">
                     <path
                         android:name="caret_l_rect"
-                        android:fillColor="#FFFFFFFF"
+                        android:fillColor="?attr/colorControlNormal"
                         android:pathData="M -1.0,-4.0 l 2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,8.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,-8.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"/>
                 </group>
             </group>
@@ -53,7 +53,7 @@
                     android:translateY="1">
                     <path
                         android:name="caret_r_rect"
-                        android:fillColor="#FFFFFFFF"
+                        android:fillColor="?attr/colorControlNormal"
                         android:pathData="M -1.0,-4.0 l 2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,8.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -2.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,-8.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"/>
                 </group>
             </group>

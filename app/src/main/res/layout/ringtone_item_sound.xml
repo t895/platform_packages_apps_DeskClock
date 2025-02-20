@@ -63,7 +63,6 @@
                     android:layout_height="wrap_content"
                     android:paddingEnd="16dp"
                     android:paddingStart="16dp"
-                    android:textColor="@color/white"
                     android:textSize="@dimen/alarm_text_font_size" />
 
             </LinearLayout>
@@ -76,7 +75,6 @@
                 android:layout_centerVertical="true"
                 android:importantForAccessibility="no"
                 android:scaleType="center"
-                android:tint="?attr/colorAccent"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_checkmark" />
 

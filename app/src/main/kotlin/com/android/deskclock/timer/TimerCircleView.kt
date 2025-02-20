@@ -18,7 +18,6 @@ package com.android.deskclock.timer
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -69,8 +68,8 @@ class TimerCircleView @JvmOverloads constructor(
         mStrokeSize = resources.getDimension(R.dimen.circletimer_circle_size)
         mRadiusOffset = Utils.calculateRadiusOffset(mStrokeSize, dotDiameter, 0f)
 
-        mRemainderColor = Color.WHITE
-        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorAccent)
+        mRemainderColor = ThemeUtils.resolveColor(context, R.attr.colorPrimary)
+        mCompletedColor = ThemeUtils.resolveColor(context, R.attr.colorPrimaryContainer)
 
         mPaint.isAntiAlias = true
         mPaint.style = Paint.Style.STROKE
@@ -101,49 +100,50 @@ class TimerCircleView @JvmOverloads constructor(
         mPaint.color = mRemainderColor
         mPaint.strokeWidth = mStrokeSize
 
-        // If the timer is reset, draw a simple white circle.
-        val redPercent: Float
+        // If the timer is reset, draw a simple circle.
+        val completedPercent: Float
         when {
             mTimer!!.isReset -> {
-                // Draw a complete white circle; no red arc required.
+                // Draw a complete circle; no arc required.
                 canvas.drawCircle(xCenter.toFloat(), yCenter.toFloat(), radius, mPaint)
 
-                // Red percent is 0 since no timer progress has been made.
-                redPercent = 0f
+                // Completed percent is 0 since no timer progress has been made.
+                completedPercent = 0f
             }
             mTimer!!.isExpired -> {
                 mPaint.color = mCompletedColor
 
-                // Draw a complete white circle; no red arc required.
+                // Draw a complete circle; no arc required.
                 canvas.drawCircle(xCenter.toFloat(), yCenter.toFloat(), radius, mPaint)
 
-                // Red percent is 1 since the timer has expired.
-                redPercent = 1f
+                // Completed percent is 1 since the timer has expired.
+                completedPercent = 1f
             }
             else -> {
-                // Draw a combination of red and white arcs to create a circle.
+                // Draw a combination of arcs to create a circle.
                 mArcRect.top = yCenter - radius
                 mArcRect.bottom = yCenter + radius
                 mArcRect.left = xCenter - radius
                 mArcRect.right = xCenter + radius
-                redPercent = min(1f,
+                completedPercent = min(1f,
                         mTimer!!.elapsedTime.toFloat() / mTimer!!.totalLength.toFloat())
-                val whitePercent = 1 - redPercent
+                val remainingPercent = 1 - completedPercent
 
-                // Draw a white arc to indicate the amount of timer that remains.
-                canvas.drawArc(mArcRect, 270f, whitePercent * 360, false, mPaint)
+                // Draw an arc to indicate the amount of timer that remains.
+                canvas.drawArc(mArcRect, 270f, remainingPercent * 360, false, mPaint)
 
-                // Draw a red arc to indicate the amount of timer completed.
+                // Draw an arc to indicate the amount of timer completed.
                 mPaint.color = mCompletedColor
-                canvas.drawArc(mArcRect, 270f, -redPercent * 360, false, mPaint)
+                canvas.drawArc(mArcRect, 270f, -completedPercent * 360, false, mPaint)
             }
         }
 
-        // Draw a red dot to indicate current progress through the timer.
-        val dotAngleDegrees = 270 - redPercent * 360
+        // Draw a dot to indicate current progress through the timer.
+        val dotAngleDegrees = 270 - completedPercent * 360
         val dotAngleRadians = Math.toRadians(dotAngleDegrees.toDouble())
         val dotX = xCenter + (radius * cos(dotAngleRadians)).toFloat()
         val dotY = yCenter + (radius * sin(dotAngleRadians)).toFloat()
+        mFill.color = mRemainderColor
         canvas.drawCircle(dotX, dotY, mDotRadius, mFill)
 
         if (mTimer!!.isRunning) {
