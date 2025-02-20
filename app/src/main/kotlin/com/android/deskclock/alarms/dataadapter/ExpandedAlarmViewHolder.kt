@@ -67,7 +67,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
     init {
         val context: Context = itemView.getContext()
         itemView.setBackground(LayerDrawable(arrayOf(
-                ContextCompat.getDrawable(context, R.drawable.alarm_background_expanded),
+                ContextCompat.getDrawable(context, R.drawable.alarm_background),
                 ThemeUtils.resolveDrawable(context, R.attr.selectableItemBackground)
         )))
 
@@ -176,7 +176,7 @@ class ExpandedAlarmViewHolder private constructor(itemView: View, private val mH
                             android.R.attr.windowBackground))
                 } else {
                     dayButton.isChecked = false
-                    dayButton.setTextColor(Color.WHITE)
+                    dayButton.setTextColor(ThemeUtils.resolveColor(context, R.attr.colorOnSurface))
                 }
             }
         }

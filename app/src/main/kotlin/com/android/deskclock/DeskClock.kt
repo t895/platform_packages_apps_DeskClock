@@ -32,12 +32,14 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -46,6 +48,7 @@ import androidx.viewpager.widget.ViewPager.SCROLL_STATE_IDLE
 import androidx.viewpager.widget.ViewPager.SCROLL_STATE_SETTLING
 
 import com.android.deskclock.FabContainer.UpdateFabFlag
+import com.android.deskclock.InsetsUtil.setInsetsListener
 import com.android.deskclock.LabelDialogFragment.AlarmLabelDialogHandler
 import com.android.deskclock.actionbarmenu.MenuItemControllerFactory
 import com.android.deskclock.actionbarmenu.NightModeMenuItemController
@@ -61,6 +64,7 @@ import com.android.deskclock.provider.AlarmInstance
 import com.android.deskclock.uidata.TabListener
 import com.android.deskclock.uidata.UiDataModel
 import com.android.deskclock.widget.toast.SnackbarManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -116,9 +120,6 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
 
     /** The button right of the [.mFab] shared across all tabs in the user interface.  */
     private lateinit var mRightButton: Button
-
-    /** The controller that shows the drop shadow when content is not scrolled to the top.  */
-    private var mDropShadowController: DropShadowController? = null
 
     /** The ViewPager that pages through the fragments representing the content of the tabs.  */
     private lateinit var mFragmentTabPager: ViewPager
@@ -192,6 +193,9 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
         // Configure the toolbar.
         val toolbar: Toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
+        toolbar.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
 
         val actionBar: ActionBar? = getSupportActionBar()
         actionBar?.setDisplayShowTitleEnabled(false)
@@ -252,6 +256,10 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
         }
         mRightButton.setOnClickListener {
             selectedDeskClockFragment.onRightButtonClick(mRightButton)
+        }
+
+        findViewById<View>(R.id.fab_container).setInsetsListener { left, _, right, bottom ->
+            updatePadding(left = left, right = right, bottom = bottom)
         }
 
         val duration: Long = UiDataModel.uiDataModel.shortAnimationDuration
@@ -342,10 +350,6 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
     override fun onResume() {
         super.onResume()
 
-        val dropShadow: View = findViewById(R.id.drop_shadow)
-        mDropShadowController = DropShadowController(dropShadow, UiDataModel.uiDataModel,
-                mSnackbarAnchor.findViewById(R.id.tab_hairline))
-
         // ViewPager does not save state; this honors the selected tab in the user interface.
         updateCurrentTab()
     }
@@ -360,15 +364,6 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
             // paused state, even though it is the foreground activity.
             mFragmentTabPager.post(Runnable { recreate() })
         }
-    }
-
-    override fun onPause() {
-        if (mDropShadowController != null) {
-            mDropShadowController!!.stop()
-            mDropShadowController = null
-        }
-
-        super.onPause()
     }
 
     override fun onStop() {

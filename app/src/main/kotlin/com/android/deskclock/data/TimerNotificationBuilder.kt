@@ -171,7 +171,6 @@ internal class TimerNotificationBuilder {
                 .setSortKey(nm.timerNotificationSortKey)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setColor(ContextCompat.getColor(context, R.color.default_background))
 
         for (action in actions) {
             notification.addAction(action)
@@ -288,7 +287,6 @@ internal class TimerNotificationBuilder {
                 .setSmallIcon(R.drawable.stat_notify_timer)
                 .setFullScreenIntent(pendingFullScreen, true)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setColor(ContextCompat.getColor(context, R.color.default_background))
 
         for (action in actions) {
             notification.addAction(action)
@@ -382,7 +380,6 @@ internal class TimerNotificationBuilder {
                 .setSortKey(nm.timerNotificationMissedSortKey)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .addAction(action)
-                .setColor(ContextCompat.getColor(context, R.color.default_background))
 
         if (Utils.isNOrLater) {
             notification.setCustomContentView(buildChronometer(pname, base, true, stateText))

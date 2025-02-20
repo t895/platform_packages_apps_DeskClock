@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.google.material)
     implementation(libs.androidx.gridlayout)
     implementation(libs.androidx.percentlayout)
+    implementation(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -20,8 +20,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="16dp"
-    android:paddingStart="16dp"
+    android:background="@drawable/alarm_background"
+    android:clipToOutline="true"
+    android:paddingHorizontal="20dp"
+    android:paddingBottom="4dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginHorizontal="8dp"
     app:columnCount="8"
     app:columnOrderPreserved="false"
     app:rowCount="8">
@@ -36,20 +40,19 @@
         app:layout_gravity="center_vertical"
         app:layout_row="0" />
 
-    <androidx.appcompat.widget.SwitchCompat
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/onoff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/alarm_clock_vertical_margin"
         android:minHeight="@dimen/touch_target_min_size"
         android:minWidth="@dimen/touch_target_min_size"
-        android:theme="@style/ThemeOverlay.Control.Accent"
         app:layout_column="6"
         app:layout_columnSpan="2"
         app:layout_gravity="center_vertical"
         app:layout_row="0" />
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/repeat_onoff"
         style="@style/body"
         android:layout_width="wrap_content"
@@ -94,7 +97,7 @@
         app:layout_gravity="fill_horizontal"
         app:layout_row="3" />
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/vibrate_onoff"
         style="@style/body"
         android:layout_width="wrap_content"
@@ -142,7 +145,7 @@
         android:layout_height="@dimen/hairline_height"
         android:layout_marginRight="@dimen/hairline_side_padding"
         android:layout_marginLeft="@dimen/hairline_side_padding"
-        android:background="@color/hairline"
+        android:background="?attr/colorOutlineVariant"
         app:layout_column="0"
         app:layout_columnSpan="8"
         app:layout_gravity="fill_horizontal"
@@ -162,6 +165,7 @@
         android:text="@string/delete"
         android:textAllCaps="false"
         android:textAppearance="@style/body"
+        android:textColor="?attr/colorOnSurface"
         app:layout_column="0"
         app:layout_gravity="center_vertical"
         app:layout_row="7" />

@@ -19,7 +19,7 @@
              android:layout_width="0dp"
              android:layout_height="48dp"
              android:layout_weight="1">
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/day_button_box"
         android:layout_width="48dp"
         android:layout_height="48dp"

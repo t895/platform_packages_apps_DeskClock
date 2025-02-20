@@ -17,9 +17,7 @@
 package com.android.deskclock
 
 import android.app.Dialog
-import android.content.Context
 import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -31,20 +29,20 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.data.Timer
 import com.android.deskclock.provider.Alarm
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 
 /**
  * DialogFragment to edit label.
  */
 class LabelDialogFragment : DialogFragment() {
-    private var mLabelBox: AppCompatEditText? = null
+    private var mLabelBox: TextInputEditText? = null
     private var mAlarm: Alarm? = null
     private var mTimerId = 0
     private var mTag: String? = null
@@ -68,32 +66,21 @@ class LabelDialogFragment : DialogFragment() {
             label = it.getString(ARG_LABEL, label)
         }
 
-        val dialog: AlertDialog = AlertDialog.Builder(requireActivity())
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
                 .setPositiveButton(android.R.string.ok, OkListener())
                 .setNegativeButton(android.R.string.cancel, null)
-                .setMessage(R.string.label)
                 .create()
-        val context: Context = dialog.context
 
-        val colorControlActivated = ThemeUtils.resolveColor(context, R.attr.colorControlActivated)
-        val colorControlNormal = ThemeUtils.resolveColor(context, R.attr.colorControlNormal)
-
-        mLabelBox = AppCompatEditText(context)
-        mLabelBox?.setSupportBackgroundTintList(ColorStateList(
-                arrayOf(intArrayOf(android.R.attr.state_activated), intArrayOf()),
-                intArrayOf(colorControlActivated, colorControlNormal)))
+        val view = layoutInflater.inflate(R.layout.dialog_text_input, null)
+        mLabelBox = view.findViewById(R.id.text_field)
         mLabelBox?.setOnEditorActionListener(ImeDoneListener())
         mLabelBox?.addTextChangedListener(TextChangeListener())
-        mLabelBox?.setSingleLine()
         mLabelBox?.setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
         mLabelBox?.setText(label)
-        mLabelBox?.selectAll()
+        mLabelBox?.setSelectAllOnFocus(true)
+        mLabelBox?.requestFocus()
 
-        // The line at the bottom of EditText is part of its background therefore the padding
-        // must be added to its container.
-        val padding = context.resources
-                .getDimensionPixelSize(R.dimen.label_edittext_padding)
-        dialog.setView(mLabelBox, padding, 0, padding, 0)
+        dialog.setView(view)
 
         val alertDialogWindow: Window? = dialog.window
         alertDialogWindow?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)

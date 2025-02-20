@@ -28,10 +28,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.updatePadding
 import androidx.loader.app.LoaderManager.LoaderCallbacks
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.deskclock.InsetsUtil.setInsetsListener
 
 import com.android.deskclock.ItemAdapter.ItemHolder
 import com.android.deskclock.ItemAdapter.OnItemChangedListener
@@ -50,6 +52,7 @@ import com.android.deskclock.widget.toast.SnackbarManager
 import com.android.deskclock.widget.toast.ToastManager
 
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
 
 import kotlin.math.max
 
@@ -152,6 +155,19 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         itemAnimator.setChangeDuration(300L)
         itemAnimator.setMoveDuration(300L)
         mRecyclerView.setItemAnimator(itemAnimator)
+
+        // We can't extend the material time picker so we have to re-register the positive click
+        // listener every time a configuration change happens
+        setUpTimePickerListener()
+
+        mRecyclerView.setInsetsListener { left, _, right, bottom ->
+            updatePadding(
+                left = left,
+                right = right,
+                bottom = bottom + resources.getDimension(R.dimen.fab_height).toInt()
+            )
+        }
+
         return v
     }
 
@@ -229,6 +245,15 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
     fun setLabel(alarm: Alarm, label: String?) {
         alarm.label = label
         mAlarmUpdateHandler.asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
+    }
+
+    private fun setUpTimePickerListener() {
+        val fragment = parentFragmentManager.findFragmentByTag(TimePickerDialogFragment.TAG)
+        if (fragment is MaterialTimePicker) {
+            fragment.addOnPositiveButtonClickListener {
+                onTimeSet(fragment.hour, fragment.minute)
+            }
+        }
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -363,7 +388,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         TimePickerDialogFragment.show(this)
     }
 
-    override fun onTimeSet(fragment: TimePickerDialogFragment?, hourOfDay: Int, minute: Int) {
+    override fun onTimeSet(hourOfDay: Int, minute: Int) {
         mAlarmTimeClickHandler.onTimeSet(hourOfDay, minute)
     }
 

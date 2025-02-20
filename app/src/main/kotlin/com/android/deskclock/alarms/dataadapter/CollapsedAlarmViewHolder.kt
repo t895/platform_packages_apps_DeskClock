@@ -22,15 +22,18 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.drawable.LayerDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 import com.android.deskclock.AnimatorUtils
 import com.android.deskclock.ItemAdapter.ItemViewHolder
 import com.android.deskclock.R
+import com.android.deskclock.ThemeUtils
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.events.Events
 import com.android.deskclock.provider.Alarm
@@ -45,9 +48,14 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
     val daysOfWeek: TextView = itemView.findViewById(R.id.days_of_week) as TextView
     private val upcomingInstanceLabel: TextView =
             itemView.findViewById(R.id.upcoming_instance_label) as TextView
-    private val hairLine: View = itemView.findViewById(R.id.hairline)
 
     init {
+        val context: Context = itemView.getContext()
+        itemView.setBackground(LayerDrawable(arrayOf(
+            ContextCompat.getDrawable(context, R.drawable.alarm_background),
+            ThemeUtils.resolveDrawable(context, R.attr.selectableItemBackground)
+        )))
+
         // Expand handler
         itemView.setOnClickListener { _ ->
             Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock)
@@ -175,8 +183,7 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
                 ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 0f),
                 ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 0f),
                 ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 0f),
-                ObjectAnimator.ofFloat(hairLine, View.ALPHA, 0f))
+                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 0f))
         alphaAnimatorSet.setDuration((duration * ANIM_SHORT_DURATION_MULTIPLIER).toLong())
 
         val oldView: View = itemView
@@ -196,8 +203,7 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
                 ObjectAnimator.ofFloat(alarmLabel, View.ALPHA, 1f),
                 ObjectAnimator.ofFloat(daysOfWeek, View.ALPHA, 1f),
                 ObjectAnimator.ofFloat(upcomingInstanceLabel, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 1f),
-                ObjectAnimator.ofFloat(hairLine, View.ALPHA, 1f))
+                ObjectAnimator.ofFloat(preemptiveDismissButton, View.ALPHA, 1f))
         val standardDelay = (duration * ANIM_STANDARD_DELAY_MULTIPLIER).toLong()
         alphaAnimatorSet.setDuration(standardDelay)
         alphaAnimatorSet.setStartDelay(duration - standardDelay)
@@ -237,7 +243,6 @@ class CollapsedAlarmViewHolder private constructor(itemView: View) : AlarmItemVi
         alarmLabel.alpha = alpha
         daysOfWeek.alpha = alpha
         upcomingInstanceLabel.alpha = alpha
-        hairLine.alpha = alpha
         preemptiveDismissButton.alpha = alpha
     }
 

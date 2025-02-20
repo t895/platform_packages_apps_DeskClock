@@ -36,8 +36,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.deskclock.InsetsUtil.setInsetsListener
 
 import com.android.deskclock.data.City
 import com.android.deskclock.data.CityListener
@@ -115,6 +117,13 @@ class ClockFragment : DeskClockFragment(UiDataModel.Tab.CLOCKS) {
             Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mClockFrame)
             Utils.setClockStyle(mDigitalClock!!, mAnalogClock!!)
             Utils.setClockSecondsEnabled(mDigitalClock!!, mAnalogClock!!)
+        }
+
+        fragmentView.setInsetsListener { left, _, right, _ ->
+            updatePadding(left = left, right = right)
+        }
+        mCityList.setInsetsListener { left, _, right, bottom ->
+            updatePadding( bottom = bottom + resources.getDimension(R.dimen.fab_height).toInt())
         }
 
         // Schedule a runnable to update the date every quarter hour.
