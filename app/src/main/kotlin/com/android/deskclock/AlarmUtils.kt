@@ -107,11 +107,11 @@ object AlarmUtils {
     }
 
     @JvmStatic
-    fun popAlarmSetSnackbar(snackbarAnchor: View, alarmTime: Long) {
+    fun popAlarmSetSnackbar(context: Context, snackbarProvider: SnackbarProvider, alarmTime: Long) {
         val alarmTimeDelta = alarmTime - System.currentTimeMillis()
-        val text = formatElapsedTimeUntilAlarm(
-                snackbarAnchor.context, alarmTimeDelta)
-        SnackbarManager.show(Snackbar.make(snackbarAnchor, text, Snackbar.LENGTH_SHORT))
-        snackbarAnchor.announceForAccessibility(text)
+        val text = formatElapsedTimeUntilAlarm(context, alarmTimeDelta)
+        val snackbar = snackbarProvider.createSnackbar(text, Snackbar.LENGTH_SHORT)
+        SnackbarManager.show(snackbar)
+        snackbar.anchorView?.announceForAccessibility(text)
     }
 }

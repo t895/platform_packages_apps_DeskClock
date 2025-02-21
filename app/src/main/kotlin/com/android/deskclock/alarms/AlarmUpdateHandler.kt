@@ -24,6 +24,7 @@ import android.view.ViewGroup
 
 import com.android.deskclock.AlarmUtils
 import com.android.deskclock.R
+import com.android.deskclock.SnackbarProvider
 import com.android.deskclock.events.Events
 import com.android.deskclock.provider.Alarm
 import com.android.deskclock.provider.AlarmInstance
@@ -40,7 +41,7 @@ import java.util.Calendar
 class AlarmUpdateHandler(
     context: Context,
     private val mScrollHandler: ScrollHandler?,
-    private val mSnackbarAnchor: ViewGroup?
+    private val mSnackbarProvider: SnackbarProvider
 ) {
 
     private val mAppContext: Context = context.getApplicationContext()
@@ -77,7 +78,7 @@ class AlarmUpdateHandler(
 
             override fun onPostExecute(instance: AlarmInstance?) {
                 if (instance != null) {
-                    AlarmUtils.popAlarmSetSnackbar(mSnackbarAnchor!!,
+                    AlarmUtils.popAlarmSetSnackbar(mAppContext, mSnackbarProvider,
                             instance.alarmTime.timeInMillis)
                 }
             }
@@ -133,7 +134,7 @@ class AlarmUpdateHandler(
             override fun onPostExecute(instance: AlarmInstance?) {
                 if (popToast && instance != null) {
                     AlarmUtils.popAlarmSetSnackbar(
-                            mSnackbarAnchor!!, instance.alarmTime.timeInMillis)
+                            mAppContext, mSnackbarProvider, instance.alarmTime.timeInMillis)
                 }
             }
         }
@@ -175,7 +176,7 @@ class AlarmUpdateHandler(
     fun showPredismissToast(instance: AlarmInstance) {
         val time: String = DateFormat.getTimeFormat(mAppContext).format(instance.alarmTime.time)
         val text: String = mAppContext.getString(R.string.alarm_is_dismissed, time)
-        SnackbarManager.show(Snackbar.make(mSnackbarAnchor!!, text, Snackbar.LENGTH_SHORT))
+        SnackbarManager.show(mSnackbarProvider.createSnackbar(text, Snackbar.LENGTH_SHORT))
     }
 
     /**
@@ -188,7 +189,7 @@ class AlarmUpdateHandler(
 
     private fun showUndoBar() {
         val deletedAlarm = mDeletedAlarm
-        val snackbar: Snackbar = Snackbar.make(mSnackbarAnchor!!,
+        val snackbar = mSnackbarProvider.createSnackbar(
                 mAppContext.getString(R.string.alarm_deleted), Snackbar.LENGTH_LONG)
                 .setAction(R.string.alarm_undo, { _ ->
                     mDeletedAlarm = null
