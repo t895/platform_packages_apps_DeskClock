@@ -52,6 +52,7 @@ import com.android.deskclock.ItemAdapter
 import com.android.deskclock.ItemAdapter.ItemHolder
 import com.android.deskclock.ItemAdapter.ItemViewHolder
 import com.android.deskclock.ItemAdapter.OnItemClickedListener
+import com.android.deskclock.SnackbarProvider
 import com.android.deskclock.actionbarmenu.MenuItemControllerFactory
 import com.android.deskclock.actionbarmenu.NavUpMenuItemController
 import com.android.deskclock.actionbarmenu.OptionsMenuManager
@@ -59,6 +60,7 @@ import com.android.deskclock.alarms.AlarmUpdateHandler
 import com.android.deskclock.data.DataModel
 import com.android.deskclock.provider.Alarm
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * This activity presents a set of ringtones from which the user may select one. The set includes:
@@ -70,7 +72,8 @@ import com.google.android.material.appbar.MaterialToolbar
  *
  */
 // TODO(b/165664115) Replace deprecated AsyncTask calls
-class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>> {
+class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<Uri?>>>,
+    SnackbarProvider {
     /** Generates the items in the activity context menu.  */
     private lateinit var mOptionsMenuManager: OptionsMenuManager
 
@@ -191,8 +194,11 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
                         DataModel.dataModel.defaultAlarmRingtoneUri = alarm.alert!!
 
                         // Start a second background task to persist the updated alarm.
-                        AlarmUpdateHandler(context, mScrollHandler = null, mSnackbarAnchor = null)
-                                .asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
+                        AlarmUpdateHandler(
+                            context,
+                            mScrollHandler = null,
+                            mSnackbarProvider = this@RingtonePickerActivity
+                        ).asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
                     }
                 }.execute()
             } else {
@@ -530,8 +536,11 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
                 if (mRemoveUri == alarm.alert) {
                     alarm.alert = mSystemDefaultRingtoneUri
                     // Start a second background task to persist the updated alarm.
-                    AlarmUpdateHandler(this@RingtonePickerActivity, null, null)
-                            .asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
+                    AlarmUpdateHandler(
+                        this@RingtonePickerActivity,
+                        null,
+                        this@RingtonePickerActivity
+                    ).asyncUpdateAlarm(alarm, popToast = false, minorUpdate = true)
                 }
             }
 
@@ -581,6 +590,9 @@ class RingtonePickerActivity : BaseActivity(), LoaderCallbacks<List<ItemHolder<U
             mRingtoneAdapter.removeItem(toRemove)
         }
     }
+
+    override fun createSnackbar(text: String, duration: Int): Snackbar =
+        Snackbar.make(mRecyclerView, text, duration)
 
     companion object {
         /** Key to an extra that defines resource id to the title of this activity.  */

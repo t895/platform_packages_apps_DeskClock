@@ -76,7 +76,7 @@ import com.google.android.material.tabs.TabLayout
  * The main activity of the application which displays 4 different tabs contains alarms, world
  * clocks, timers and a stopwatch.
  */
-class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
+class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler, SnackbarProvider {
     /** Models the interesting state of display the [.mFab] button may inhabit.  */
     private enum class FabState {
         SHOWING, HIDE_ARMED, HIDING
@@ -135,6 +135,9 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
 
     /** `true` when a settings change necessitates recreating this activity.  */
     private var mRecreateActivity = false
+
+    /** Most recently displayed snackbar  */
+    private var mSnackbar: Snackbar? = null
 
     override fun onNewIntent(newIntent: Intent) {
         super.onNewIntent(newIntent)
@@ -446,6 +449,8 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
             FabContainer.FAB_AND_BUTTONS_SHRINK -> mHideAnimation.start()
             FabContainer.FAB_AND_BUTTONS_EXPAND -> mShowAnimation.start()
         }
+
+        onSnackbarRepositionNeeded(firstUpdate = false)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -498,11 +503,29 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
             throw IllegalStateException("Unable to locate selected fragment ($selectedTab)")
         }
 
-    /**
-     * @return a Snackbar that displays the message with the given id for 5 seconds
-     */
-    private fun createSnackbar(@StringRes messageId: Int): Snackbar {
-        return Snackbar.make(mSnackbarAnchor, messageId, 5000)
+    override fun createSnackbar(text: String, duration: Int): Snackbar {
+        val snackbar = Snackbar.make(mSnackbarAnchor, text, duration)
+        mSnackbar = snackbar
+        onSnackbarRepositionNeeded(firstUpdate = true)
+        return snackbar
+    }
+
+    private fun onSnackbarRepositionNeeded(firstUpdate: Boolean) {
+        if (mSnackbar == null) {
+            return
+        }
+
+        if (mSnackbar!!.isShownOrQueued || firstUpdate) {
+            val fabHeight = resources.getDimension(R.dimen.fab_height)
+            mSnackbar!!.view.animate().apply {
+                translationY(if (mFab.visibility == View.INVISIBLE) 0f else -fabHeight)
+                if (mFab.visibility == View.VISIBLE && firstUpdate) {
+                    setDuration(0)
+                } else {
+                    setDuration(200)
+                }
+            }.start()
+        }
     }
 
     private fun isIgnoringBatteryOptimizations(): Boolean =
@@ -637,7 +660,7 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
     ) : Runnable {
         override fun run() {
             // Create a snackbar with a message explaining the setting that is silencing alarms.
-            val snackbar: Snackbar = createSnackbar(mSilentSetting.labelResId)
+            val snackbar = createSnackbar(getString(mSilentSetting.labelResId), 5000)
 
             // Set the associated corrective action if one exists.
             if (mSilentSetting.isActionEnabled(this@DeskClock)) {

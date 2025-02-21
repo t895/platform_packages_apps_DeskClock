@@ -80,6 +80,7 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
     private lateinit var mEmptyViewController: EmptyViewController
     private lateinit var mAlarmTimeClickHandler: AlarmTimeClickHandler
     private lateinit var mLayoutManager: LinearLayoutManager
+    private lateinit var mSnackbarProvider: SnackbarProvider
 
     override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
@@ -109,7 +110,8 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         }
         mRecyclerView.setLayoutManager(mLayoutManager)
         mMainLayout = v.findViewById<View>(R.id.main) as ViewGroup
-        mAlarmUpdateHandler = AlarmUpdateHandler(context, this, mMainLayout)
+        mSnackbarProvider = context as SnackbarProvider
+        mAlarmUpdateHandler = AlarmUpdateHandler(context, this, mSnackbarProvider)
         val emptyView = v.findViewById<View>(R.id.alarms_empty_view) as TextView
         val noAlarms: Drawable? = Utils.getVectorDrawable(context, R.drawable.ic_noalarms)
         emptyView.setCompoundDrawablesWithIntrinsicBounds(null, noAlarms, null, null)
@@ -354,8 +356,12 @@ class AlarmClockFragment : DeskClockFragment(UiDataModel.Tab.ALARMS),
         } else {
             // Trying to display a deleted alarm should only happen from a missed notification for
             // an alarm that has been marked deleted after use.
-            SnackbarManager.show(Snackbar.make(mMainLayout, R.string.missed_alarm_has_been_deleted,
-                    Snackbar.LENGTH_LONG))
+            SnackbarManager.show(
+                mSnackbarProvider.createSnackbar(
+                    getString(R.string.missed_alarm_has_been_deleted),
+                    Snackbar.LENGTH_LONG
+                )
+            )
         }
     }
 
