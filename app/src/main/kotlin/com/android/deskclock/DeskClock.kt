@@ -20,11 +20,14 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.format.DateUtils
 import android.view.KeyEvent
 import android.view.Menu
@@ -185,6 +188,10 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
                 arrayOf(Manifest.permission.READ_PHONE_STATE),
                 0
             )
+        }
+
+        if (!isIgnoringBatteryOptimizations()) {
+            requestIgnoreBatteryOptimizations()
         }
 
         setContentView(R.layout.desk_clock)
@@ -496,6 +503,21 @@ class DeskClock : BaseActivity(), FabContainer, AlarmLabelDialogHandler {
      */
     private fun createSnackbar(@StringRes messageId: Int): Snackbar {
         return Snackbar.make(mSnackbarAnchor, messageId, 5000)
+    }
+
+    private fun isIgnoringBatteryOptimizations(): Boolean =
+        getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName)
+
+    @SuppressLint("BatteryLife")
+    private fun requestIgnoreBatteryOptimizations() {
+        try {
+            LogUtils.d("Requesting battery optimization exemption")
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                .setData(Uri.parse("package:$packageName"))
+            startActivity(intent)
+        } catch (e: Exception) {
+            LogUtils.e("Failed to request to ignore battery optimizations: " + e.message)
+        }
     }
 
     /**
